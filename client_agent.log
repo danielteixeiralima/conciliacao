@@ -1,0 +1,202 @@
+2025-10-01 13:13:28,603 INFO:Agente iniciado e rodando...
+2025-10-01 13:13:28,608 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:13:38,609 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE6B550>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:13:43,615 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:13:53,626 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832AB7E0D0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:13:58,632 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:14:08,640 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE83C10>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:14:13,643 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:14:23,656 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE91C90>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:14:28,660 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:14:38,666 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE93C90>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:14:43,669 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:14:53,675 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE9DD50>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:14:58,679 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:15:08,692 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE93650>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:15:13,694 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:15:23,711 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE925D0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:15:28,714 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:15:38,726 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE91510>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:15:43,728 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:15:53,734 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE83990>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:15:58,736 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:16:08,740 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE9EED0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:16:13,742 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:16:23,757 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE9FE90>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:16:28,762 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:16:38,765 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CEA9F90>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:16:43,767 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:16:53,775 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE826D0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:16:58,779 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:17:08,782 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE83C90>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:17:13,787 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:17:23,797 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE9E150>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:17:28,798 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:17:38,799 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE92050>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:17:43,803 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:17:53,818 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE906D0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:17:58,823 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:18:08,833 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CEAA0D0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:18:13,837 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:18:23,842 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE91950>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:18:28,845 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:18:38,852 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE83990>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:18:43,857 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:18:53,865 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE83D50>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:18:58,868 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:19:08,882 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE9FA50>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:19:13,884 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:19:23,886 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001832CE9D4D0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:19:28,888 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:19:40,725 INFO:Agente iniciado e rodando...
+2025-10-01 13:19:40,726 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:22:23,119 INFO:Agente iniciado e rodando...
+2025-10-01 13:22:23,121 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:22:37,767 INFO:Agente iniciado e rodando...
+2025-10-01 13:22:37,768 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:22:47,780 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001D0821C1D90>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:22:52,782 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:23:02,791 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001D0FFE7E0D0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:23:07,793 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:23:17,801 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001D0821C3F50>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:23:22,804 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:23:32,804 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001D0821D1FD0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:23:37,807 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:23:47,807 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001D0821D3FD0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:23:52,811 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:24:02,827 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001D0821DE0D0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:24:07,832 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:24:17,843 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001D0821DFF50>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:24:22,846 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:24:32,856 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001D0821DCD50>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:24:37,859 DEBUG:Starting new HTTP connection (1): 35.247.204.158:5000
+2025-10-01 13:24:47,867 ERROR:Erro no agente: HTTPConnectionPool(host='35.247.204.158', port=5000): Max retries exceeded with url: /get_command (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001D0821D3ED0>, 'Connection to 35.247.204.158 timed out. (connect timeout=10)'))
+2025-10-01 13:25:34,892 INFO:Agente iniciado e rodando...
+2025-10-01 13:25:34,893 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:25:34,895 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:25:34,895 DEBUG:Nenhum comando pendente.
+2025-10-01 13:25:39,896 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:25:39,912 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:25:39,912 DEBUG:Nenhum comando pendente.
+2025-10-01 13:25:44,913 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:25:44,918 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:25:44,918 DEBUG:Nenhum comando pendente.
+2025-10-01 13:25:49,920 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:25:49,940 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:25:49,940 DEBUG:Nenhum comando pendente.
+2025-10-01 13:25:54,942 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:25:54,946 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:25:54,946 DEBUG:Nenhum comando pendente.
+2025-10-01 13:25:59,950 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:25:59,971 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:25:59,971 DEBUG:Nenhum comando pendente.
+2025-10-01 13:26:04,974 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:26:04,976 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:26:04,977 DEBUG:Nenhum comando pendente.
+2025-10-01 13:26:09,978 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:26:09,994 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:26:09,994 DEBUG:Nenhum comando pendente.
+2025-10-01 13:26:14,995 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:26:15,007 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:26:15,007 DEBUG:Nenhum comando pendente.
+2025-10-01 13:26:20,009 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:26:20,011 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:26:20,012 DEBUG:Nenhum comando pendente.
+2025-10-01 13:26:25,013 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:26:25,036 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:26:25,037 DEBUG:Nenhum comando pendente.
+2025-10-01 13:26:30,042 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:26:30,060 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:26:30,061 DEBUG:Nenhum comando pendente.
+2025-10-01 13:26:35,063 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:26:35,066 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:26:35,066 DEBUG:Nenhum comando pendente.
+2025-10-01 13:26:40,067 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:26:40,071 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:26:40,071 DEBUG:Nenhum comando pendente.
+2025-10-01 13:26:45,073 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:26:45,099 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:26:45,100 DEBUG:Nenhum comando pendente.
+2025-10-01 13:26:50,101 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:26:50,104 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:26:50,105 DEBUG:Nenhum comando pendente.
+2025-10-01 13:26:55,105 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:26:55,107 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:26:55,107 DEBUG:Nenhum comando pendente.
+2025-10-01 13:27:00,108 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:00,122 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:27:00,122 DEBUG:Nenhum comando pendente.
+2025-10-01 13:27:05,124 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:05,147 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:27:05,147 DEBUG:Nenhum comando pendente.
+2025-10-01 13:27:10,148 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:10,150 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:27:10,150 DEBUG:Nenhum comando pendente.
+2025-10-01 13:27:15,153 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:15,181 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:27:15,182 DEBUG:Nenhum comando pendente.
+2025-10-01 13:27:20,184 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:20,211 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:27:20,211 DEBUG:Nenhum comando pendente.
+2025-10-01 13:27:25,212 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:25,214 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:27:25,214 DEBUG:Nenhum comando pendente.
+2025-10-01 13:27:30,216 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:30,219 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:27:30,219 DEBUG:Nenhum comando pendente.
+2025-10-01 13:27:35,223 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:35,226 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:27:35,227 DEBUG:Nenhum comando pendente.
+2025-10-01 13:27:40,228 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:40,229 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 68
+2025-10-01 13:27:40,232 ERROR:conc_shopping.exe n\ufffdo encontrado em C:\AUTOMACAO\conciliacao\bots\conc_shopping.exe
+2025-10-01 13:27:40,233 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:40,235 DEBUG:http://127.0.0.1:5000 "POST /update_command HTTP/1.1" 200 51
+2025-10-01 13:27:45,236 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:45,262 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:27:45,262 DEBUG:Nenhum comando pendente.
+2025-10-01 13:27:50,264 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:50,266 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:27:50,266 DEBUG:Nenhum comando pendente.
+2025-10-01 13:27:55,268 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:27:55,270 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:27:55,271 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:00,271 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:00,297 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:00,297 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:05,298 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:05,312 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:05,313 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:10,316 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:10,319 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:10,319 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:15,321 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:15,323 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:15,323 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:20,324 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:20,326 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:20,326 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:25,328 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:25,352 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:25,352 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:30,352 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:30,354 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:30,354 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:35,355 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:35,369 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:35,369 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:40,370 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:40,397 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:40,397 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:45,399 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:45,401 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:45,401 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:50,403 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:50,426 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:50,426 DEBUG:Nenhum comando pendente.
+2025-10-01 13:28:55,428 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:28:55,451 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:28:55,451 DEBUG:Nenhum comando pendente.
+2025-10-01 13:29:00,452 DEBUG:Starting new HTTP connection (1): 127.0.0.1:5000
+2025-10-01 13:29:00,467 DEBUG:http://127.0.0.1:5000 "GET /get_command HTTP/1.1" 200 36
+2025-10-01 13:29:00,467 DEBUG:Nenhum comando pendente.

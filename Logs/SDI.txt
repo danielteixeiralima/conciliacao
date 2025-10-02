@@ -1,0 +1,15 @@
+2025-10-02 12:01:45,012 INFO:Iniciando conciliação para shopping 'Shopping Mpyinstaller --clean --onefile --hidden-import pyautogui --hidden-import pygetwindow --hidden-import pyscreeze --hidden-import pytweening --hidden-import mouseinfo --hidden-import pywin32 --hidden-import pywinauto --hidden-import cv2 --hidden-import holidays --hidden-import anthropic --hidden-import openai --hidden-import pyexcel_xls --hidden-import pyexcel_xlsx --hidden-import pyexcel_io --hidden-import pyexcel_io.readers --hidden-import pyexcel_io.writers --hidden-import pyexcel.plugins.parsers.excel --hidden-import pyexcel.plugins.renderers.excel --hidden-import pyexcel.plugins.sources.file_input --hidden-import pyexcel.plugins.sources.file_output --hidden-import google_auth_oauthlib --hidden-import googleapiclient --hidden-import googleapiclient.discovery --hidden-import googleapiclient.http --hidden-import google.auth --hidden-import google.auth.transport.requests --add-data credentials.json;. conc_shopping.py' (variant=SDI)
+2025-10-02 12:01:45,012 INFO:Listando janelas ativas (Desktop UIA):
+2025-10-02 12:01:45,351 INFO:Ativar o Windows.Acesse Configurações para ativar o Windows.
+2025-10-02 12:01:45,351 INFO:Barra de Tarefas
+2025-10-02 12:01:45,352 INFO:192.168.18.28 - Conexão de Área de Trabalho Remota
+2025-10-02 12:01:45,352 INFO:Prompt de Comando - python  conc_shopping.py "Shopping Mpyinstaller --clean --onefile --hidden-import pyautogui --hidden-import pygetwindow --hidden-import pyscreeze --hidden-import pytweening --hidden-import mouseinfo --hidden-import pywin32 --hidden-import pywinauto --hidden-import cv2 --hidden-import holidays --hidden-import anthropic --hidden-import openai --hidden-import pyexcel_xls --hidden-import pyexcel_xlsx --hidden-import pyexcel_io --hidden-import pyexcel_io.readers --hidden-import pyexcel_io.writers --hidden-import pyexcel.plugins.parsers.excel --hidden-import pyexcel.plugins.renderers.excel --hidden-import pyexcel.plugins.sources.file_input --hidden-import pyexcel.plugins.sources.file_output --hidden-import google_auth_oauthlib --hidden-import googleapiclient --hidden-import googleapiclient.discovery --hidden-import googleapiclient.http --hidden-import google.auth --hidden-import google.auth.transport.requests --add-data "credentials.json;." conc_shopping.py
+2025-10-02 12:01:45,353 INFO:Explorador de Arquivos
+2025-10-02 12:01:45,353 INFO:Página Inicial / X - Google Chrome
+2025-10-02 12:01:45,354 INFO:Alternativas para PyAutoGUI - Google Chrome
+2025-10-02 12:01:45,354 INFO:conc_shopping.py - conciliacao - Visual Studio Code
+2025-10-02 12:01:45,355 INFO:dist
+2025-10-02 12:01:45,355 INFO:TeamViewer
+2025-10-02 12:01:45,356 INFO:ssh.cloud.google.com - Google Chrome
+2025-10-02 12:01:45,356 INFO:
+2025-10-02 12:01:45,356 INFO:Program Manager

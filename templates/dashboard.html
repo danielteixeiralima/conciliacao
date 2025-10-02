@@ -1,0 +1,126 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Automação</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body { background: #f5f8fa; }
+    .card { margin-bottom: 1rem; }
+    .status-pending { color: orange; font-weight: bold; }
+    .status-inprogress { color: blue; font-weight: bold; }
+    .status-completed { color: green; font-weight: bold; }
+  </style>
+</head>
+<body class="container py-4">
+  <h1 class="mb-4">Painel de Automação</h1>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          Disparar Conciliação Shopping
+        </div>
+        <div class="card-body">
+          <form id="shoppingForm">
+            <div class="mb-3">
+              <label for="shopping" class="form-label">Selecione o Shopping</label>
+              <select id="shopping" class="form-select">
+                <option value="">-- Escolha --</option>
+                <option value="Shopping da Ilha">Shopping da Ilha</option>
+                <option value="Shopping Mestre Álvaro">Shopping Mestre Álvaro</option>
+                <option value="Shopping Moxuara">Shopping Moxuara</option>
+                <option value="Shopping Montserrat">Shopping Montserrat</option>
+                <option value="Shopping Metrópole">Shopping Metrópole</option>
+                <option value="Shopping Rio Poty">Shopping Rio Poty</option>
+                <option value="Shopping Praia da Costa">Shopping Praia da Costa</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-success">Disparar Automação</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-secondary text-white">
+          Histórico de Comandos
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered" id="statusTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Comando</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="3">Nenhum comando enviado ainda.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('shoppingForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const shopping = document.getElementById('shopping').value;
+      if (!shopping) {
+        alert('Selecione um shopping.');
+        return;
+      }
+      try {
+        const resp = await fetch(`/start_conciliacao?shopping=${encodeURIComponent(shopping)}`);
+        const text = await resp.text();
+        alert(text);
+        updateStatus(); // atualiza tabela após enviar
+      } catch (err) {
+        alert('Erro ao enviar comando: ' + err);
+      }
+    });
+
+    async function updateStatus() {
+      try {
+        const resp = await fetch('/get_commands');
+        const data = await resp.json();
+        const tbody = document.querySelector('#statusTable tbody');
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3">Nenhum comando enviado ainda.</td></tr>';
+          return;
+        }
+        data.forEach(cmd => {
+          const row = document.createElement('tr');
+          let statusClass = '';
+          if (cmd.status === 'pending') statusClass = 'status-pending';
+          else if (cmd.status === 'in_progress') statusClass = 'status-inprogress';
+          else if (cmd.status === 'completed') statusClass = 'status-completed';
+
+          row.innerHTML = `
+            <td>${cmd.id}</td>
+            <td>${cmd.command}</td>
+            <td class="${statusClass}">
+              ${cmd.status === 'pending' ? '⏳ Pendente' : 
+                 cmd.status === 'in_progress' ? '⚙️ Em andamento' : 
+                 cmd.status === 'completed' ? '✅ Concluído' : cmd.status}
+            </td>`;
+          tbody.appendChild(row);
+        });
+      } catch (err) {
+        console.error('Erro ao atualizar status:', err);
+      }
+    }
+
+    // Atualiza a cada 5 segundos
+    setInterval(updateStatus, 5000);
+    updateStatus();
+  </script>
+</body>
+</html>

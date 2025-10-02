@@ -1,0 +1,14 @@
+2025-10-02 12:00:57,060 INFO:Iniciando conciliação para shopping 'Shopping Montserrat' (variant=SMS)
+2025-10-02 12:00:57,060 INFO:Listando janelas ativas (Desktop UIA):
+2025-10-02 12:00:57,460 INFO:Ativar o Windows.Acesse Configurações para ativar o Windows.
+2025-10-02 12:00:57,461 INFO:Barra de Tarefas
+2025-10-02 12:00:57,462 INFO:192.168.18.28 - Conexão de Área de Trabalho Remota
+2025-10-02 12:00:57,462 INFO:Prompt de Comando - python  conc_shopping.py "Shopping Montserrat"
+2025-10-02 12:00:57,463 INFO:Alternativas para PyAutoGUI - Google Chrome
+2025-10-02 12:00:57,464 INFO:conc_shopping.py - conciliacao - Visual Studio Code
+2025-10-02 12:00:57,464 INFO:(2) WhatsApp - Google Chrome
+2025-10-02 12:00:57,465 INFO:dist
+2025-10-02 12:00:57,468 INFO:TeamViewer
+2025-10-02 12:00:57,468 INFO:ssh.cloud.google.com - Google Chrome
+2025-10-02 12:00:57,469 INFO:
+2025-10-02 12:00:57,470 INFO:Program Manager
