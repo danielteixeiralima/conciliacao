@@ -23,14 +23,19 @@ def load_commands():
         try:
             with open(COMMANDS_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except:
+        except Exception as e:
+            logging.error(f"Erro ao carregar comandos: {e}")
             return []
     return []
 
 def save_commands(data):
-    with open(COMMANDS_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    try:
+        with open(COMMANDS_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logging.error(f"Erro ao salvar comandos: {e}")
 
+# Carrega a fila persistente
 commands = load_commands()
 command_counter = len(commands) + 1
 
@@ -118,6 +123,7 @@ def start_conciliacao():
 
 
 
+
 @app.route('/start_vsloader')
 def start_vsloader():
     """Enfileira execução do VSLOADER"""
@@ -154,13 +160,18 @@ def update_command():
     global commands
     data = request.get_json()
     command_id = data.get("command_id")
+    updated = False
     for cmd in commands:
         if cmd["id"] == command_id:
             cmd["status"] = "completed"
             cmd["completed_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-            save_commands(commands)
-            return jsonify({"message": "Command completed successfully."})
+            updated = True
+            break
+    if updated:
+        save_commands(commands)
+        return jsonify({"message": "Command completed successfully."})
     return jsonify({"error": "Command not found."}), 404
+
 
 
 
