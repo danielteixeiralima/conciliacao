@@ -7,14 +7,33 @@ import logging
 import requests
 from threading import Thread
 from flask import Flask, render_template, request, jsonify
-
+import json
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
 # ====== Banco simples em memória (lista) ======
-commands = []
-command_counter = 1
+# ====== Banco persistente em disco ======
+
+
+COMMANDS_FILE = "commands.json"
+
+def load_commands():
+    if os.path.exists(COMMANDS_FILE):
+        try:
+            with open(COMMANDS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return []
+    return []
+
+def save_commands(data):
+    with open(COMMANDS_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+commands = load_commands()
+command_counter = len(commands) + 1
+
 
 
 # ====== Funções do agente (lado cliente) ======
@@ -89,11 +108,14 @@ def start_conciliacao():
     cmd = {
         "id": command_counter,
         "command": f"execute_conciliacao::{shopping}",
-        "status": "pending"
+        "status": "pending",
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     commands.append(cmd)
     command_counter += 1
+    save_commands(commands)
     return f"Comando enviado para executar conc_shopping com {shopping}"
+
 
 
 @app.route('/start_vsloader')
@@ -131,12 +153,15 @@ def update_command():
     """Agente marca comando como concluído"""
     global commands
     data = request.get_json()
-    command_id = data['command_id']
+    command_id = data.get("command_id")
     for cmd in commands:
         if cmd["id"] == command_id:
             cmd["status"] = "completed"
+            cmd["completed_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+            save_commands(commands)
             return jsonify({"message": "Command completed successfully."})
     return jsonify({"error": "Command not found."}), 404
+
 
 
 if __name__ == '__main__':
