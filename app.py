@@ -15,6 +15,7 @@ app = Flask(__name__)
 # ====== Banco simples em memória (lista) ======
 # ====== Banco persistente em disco ======
 
+logging.getLogger('werkzeug').setLevel(logging.INFO)
 
 COMMANDS_FILE = "commands.json"
 
@@ -39,6 +40,10 @@ def save_commands(data):
 commands = load_commands()
 command_counter = len(commands) + 1
 
+commands = []        # limpa tudo ao iniciar
+command_counter = 1  # reinicia IDs
+save_commands(commands)
+logging.info(">>> Lista de comandos limpa ao iniciar servidor.")
 
 
 # ====== Funções do agente (lado cliente) ======
@@ -150,9 +155,9 @@ def get_command():
 
 @app.route('/get_commands')
 def get_commands():
-    """Lista todos os comandos com status"""
     global commands
-    return jsonify(commands)
+    ativos = [c for c in commands if c["status"] != "completed"]
+    return jsonify(ativos)
 
 @app.route('/update_command', methods=['POST'])
 def update_command():
