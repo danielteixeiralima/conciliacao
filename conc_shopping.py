@@ -29,6 +29,10 @@ from datetime import datetime, time as dt_time, timedelta
 import shutil
 from itertools import count
 import re
+pyautogui.FAILSAFE = False  # CUIDADO: não encosta nos cantos da tela para abortar
+pyautogui.PAUSE = 0.1       # pequeno delay entre ações (deixa mais estável)
+import psutil
+import signal
 
 br_holidays = Brazil()
 
@@ -102,13 +106,13 @@ def determine_variant(shopping):
 #     level=logging.INFO,
 #     format='%(asctime)s %(levelname)s:%(message)s'
 # )
-
+ 
 for w in Desktop(backend="uia").windows():
     logging.info(w.window_text())
 
-openai.api_key = "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"
+openai.api_key = "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"
 
-anthropic = Anthropic(api_key='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')
+anthropic = Anthropic(api_key='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')   
 
 shopping_fases_tipo2 = {
     "Shopping Mestre Álvaro": {
@@ -475,6 +479,16 @@ folder_map = {
     "Shopping Praia da Costa": r"C:\Program Files\Victor & Schellenberger\VSSC_PRAIADACOSTA",
     "Shopping Mestre Álvaro": r"C:\Program Files\Victor & Schellenberger\VSSC_MESTREALVARO"
 }
+
+def kill_vsloader():
+    """Força o fechamento do VSLoader.exe."""
+    for proc in psutil.process_iter(['pid', 'name']):
+        if 'VSLOADER' in proc.info['name'].upper():
+            try:
+                proc.kill()
+                logging.warning(f"💀 VSLOADER.EXE finalizado forçadamente (PID={proc.info['pid']})")
+            except Exception as e:
+                logging.error(f"Erro ao tentar encerrar VSLOADER.EXE: {e}")
 def execute_vsloader(shopping):
     print(f"[DEBUG] execute_vsloader recebeu shopping = {shopping}")
     variant = determine_variant(shopping)
@@ -656,6 +670,9 @@ def execute_vsloader(shopping):
         time.sleep(2)
         pyautogui.hotkey('win', 'up')
         time.sleep(5)
+        repeated_text = None
+        repeat_count = 0
+
         while True:
             screenshot1 = capture_screenshot()
             extracted1 = analyze_screenshot(screenshot1)
@@ -689,23 +706,34 @@ def execute_vsloader(shopping):
                 break
 
             combined = (extracted1 + " " + extracted2) if extracted1 and extracted2 else (extracted1 or extracted2)
+            combined = combined.strip().lower()
+
+            if combined == repeated_text:
+                repeat_count += 1
+            else:
+                repeated_text = combined
+                repeat_count = 0
+
+            if repeat_count >= 20:
+                logging.error(f"⚠️ Travamento detectado no shopping {shopping}. Mesmo modal repetido 20x seguidas: {combined[:100]}...")
+                kill_vsloader()
+                raise RuntimeError(f"Travamento detectado no shopping {shopping}")
+
             if fuzzy_contains(combined, "<ESC>"):
                 pyautogui.click(center_x, center_y)
                 pyautogui.press('esc')
-            elif fuzzy_contains(combined, "Competência de Trabalho") and fuzzy_contains(combined, "Alerta VSSC"):
+            elif fuzzy_contains(combined, "competência de trabalho") and fuzzy_contains(combined, "alerta vssc"):
                 pyautogui.click(center_x, center_y)
                 pyautogui.press('enter')
-            elif fuzzy_contains(combined, "Alerta VSSC"):
+            elif fuzzy_contains(combined, "alerta vssc"):
                 pyautogui.click(center_x, center_y)
                 pyautogui.press('esc')
-            
-            elif fuzzy_contains(combined, "Contratos com término"):
+            elif fuzzy_contains(combined, "contratos com término") or fuzzy_contains(combined, "contratos com termino"):
                 logging.info("Contrato com término detectado")
                 for _ in range(5):
                     pyautogui.press('esc')
                 time.sleep(2)
                 break
-                
             else:
                 logging.info("Nenhuma tela detectada")
                 logging.info(combined)
@@ -759,6 +787,9 @@ def execute_vsloader(shopping):
                 time.sleep(0.5)
                 pyautogui.press('up')
 
+                repeated_text = None
+                repeat_count = 0
+
                 while True:
                     screenshot1 = capture_screenshot()
                     extracted1 = analyze_screenshot(screenshot1)
@@ -791,24 +822,38 @@ def execute_vsloader(shopping):
                         break
 
                     combined_extracted = (extracted1 + " " + extracted2) if extracted1 and extracted2 else (extracted1 or extracted2)
+                    combined_extracted = combined_extracted.strip().lower()
+
+                    if combined_extracted == repeated_text:
+                        repeat_count += 1
+                    else:
+                        repeated_text = combined_extracted
+                        repeat_count = 0
+
+                    if repeat_count >= 20:
+                        logging.error(f"⚠️ Travamento detectado no shopping {shopping}. Mesmo modal repetido 20x seguidas: {combined_extracted[:100]}...")
+                        kill_vsloader()
+                        raise RuntimeError(f"Travamento detectado no shopping {shopping}")
+
                     screen_width = pyautogui.size().width
                     screen_height = pyautogui.size().height
                     center_x = screen_width // 2
                     center_y = screen_height // 2
 
-                    if fuzzy_contains(combined_extracted, "Alerta VSSC"):
+                    if fuzzy_contains(combined_extracted, "alerta vssc"):
                         logging.info("execute_vsloader: Print indica ação ENTER. Texto identificado: %s", combined_extracted)
                         pyautogui.moveTo(center_x, center_y)
                         pyautogui.click()
                         pyautogui.press("enter")
                         time.sleep(1)
                         break
-                    elif fuzzy_contains(combined_extracted, "Leitura do Arquivo CNAB"):
+                    elif fuzzy_contains(combined_extracted, "leitura do arquivo cnab"):
                         logging.info("execute_vsloader: Tela 'Leitura do Arquivo CNAB' identificada. Texto identificado: %s", combined_extracted)
-                        break            
+                        break
                     else:
                         logging.info("execute_vsloader: Nenhuma condição modal identificada. Texto identificado: %s", combined_extracted)
                     time.sleep(3)
+
                 time.sleep(2)
                 
                 # Seleção de arquivo: utiliza a pasta do portador atual conforme a tabela
@@ -856,17 +901,36 @@ def execute_vsloader(shopping):
                         pyautogui.press('enter')
                         time.sleep(1)
                         pyautogui.press('enter')
+                        repeated_text = None
+                        repeat_count = 0
+
                         while True:
                             screenshot1 = capture_screenshot()
                             extracted1 = analyze_screenshot(screenshot1)
                             time.sleep(2)
                             screenshot2 = capture_screenshot()
                             extracted2 = analyze_screenshot(screenshot2)
+
                             if extracted1 is None and extracted2 is None:
                                 logging.info("execute_vsloader: Nenhum texto extraído nos prints (033). extracted1=None, extracted2=None.")
                                 time.sleep(3)
                                 continue
+
                             combined_tmp = (extracted1 or "") + " " + (extracted2 or "")
+                            combined_tmp = combined_tmp.strip().lower()
+
+                            # 🚨 DETECTOR DE TRAVAMENTO
+                            if combined_tmp == repeated_text:
+                                repeat_count += 1
+                            else:
+                                repeated_text = combined_tmp
+                                repeat_count = 0
+
+                            if repeat_count >= 20:
+                                logging.error(f"⚠️ Travamento detectado no shopping {shopping} (033). Mesmo modal repetido 20x seguidas: {combined_tmp[:100]}...")
+                                kill_vsloader()
+                                raise RuntimeError(f"Travamento detectado no shopping {shopping}")
+
                             if fuzzy_contains(combined_tmp, "LEITURA CONCLUÍDA"):
                                 logging.info("execute_vsloader: Leitura concluída (033). Texto identificado: %s", combined_tmp)
                                 cx = pyautogui.size().width // 2
@@ -897,6 +961,9 @@ def execute_vsloader(shopping):
                     time.sleep(2)
                     pyautogui.press('enter')
                     # Validação via prints
+                    repeated_text = None
+                    repeat_count = 0
+
                     while True:
                         screenshot1 = capture_screenshot()
                         extracted1 = analyze_screenshot(screenshot1)
@@ -929,25 +996,38 @@ def execute_vsloader(shopping):
                             break
 
                         combined_extracted = (extracted1 + " " + extracted2) if extracted1 and extracted2 else (extracted1 or extracted2)
+                        combined_extracted = combined_extracted.strip().lower()
+
+                        if combined_extracted == repeated_text:
+                            repeat_count += 1
+                        else:
+                            repeated_text = combined_extracted
+                            repeat_count = 0
+
+                        if repeat_count >= 20:
+                            logging.error(f"⚠️ Travamento detectado no shopping {shopping} (não 033). Mesmo modal repetido 20x seguidas: {combined_extracted[:100]}...")
+                            kill_vsloader()
+                            raise RuntimeError(f"Travamento detectado no shopping {shopping}")
+
                         screen_width = pyautogui.size().width
                         screen_height = pyautogui.size().height
                         center_x = screen_width // 2
                         center_y = screen_height // 2
 
-                        if fuzzy_contains(combined_extracted, "Alerta VSSC") and fuzzy_contains(combined_extracted, "O arquivo de integração para este banco"):
+                        if fuzzy_contains(combined_extracted, "alerta vssc") and fuzzy_contains(combined_extracted, "o arquivo de integração para este banco"):
                             logging.info("execute_vsloader: Alerta na integração (não 033). Texto identificado: %s", combined_extracted)
                             pyautogui.moveTo(center_x, center_y)
                             pyautogui.click()
                             pyautogui.press("enter")
                             time.sleep(3)
-                        elif fuzzy_contains(combined_extracted, "ATENÇÃO") and fuzzy_contains(combined_extracted, "Competência de Trabalho será alterada"):
+                        elif fuzzy_contains(combined_extracted, "atenção") and fuzzy_contains(combined_extracted, "competência de trabalho será alterada"):
                             logging.info("execute_vsloader: Atenção/Competência será alterada (não 033) -> ENTER. Texto identificado: %s", combined_extracted)
                             pyautogui.moveTo(center_x, center_y)
                             pyautogui.click()
                             pyautogui.press("enter")
                             time.sleep(3)
                             break
-                        elif fuzzy_contains(combined_extracted, "LEITURA CONCLUÍDA")or fuzzy_contains(combined_extracted, "GRAVAÇÃO CONCLUÍDA"):
+                        elif fuzzy_contains(combined_extracted, "leitura concluída") or fuzzy_contains(combined_extracted, "gravação concluída"):
                             logging.info("execute_vsloader: Leitura/Gravação concluída (não 033). Texto identificado: %s", combined_extracted)
                             pyautogui.moveTo(center_x, center_y)
                             pyautogui.click()
@@ -956,28 +1036,29 @@ def execute_vsloader(shopping):
                                 time.sleep(0.3)
                             time.sleep(3)
                             break
-                        elif fuzzy_contains(combined_extracted, "Pressione <ESC>") or fuzzy_contains(combined_extracted, "Alerta VSSC"):
+                        elif fuzzy_contains(combined_extracted, "pressione <esc>") or fuzzy_contains(combined_extracted, "alerta vssc"):
                             logging.info("execute_vsloader: Solicita ESC/Alerta VSSC (não 033). Texto identificado: %s", combined_extracted)
                             pyautogui.moveTo(center_x, center_y)
                             pyautogui.click()
                             pyautogui.press("esc")
                             time.sleep(3)
-                        elif fuzzy_contains(combined_extracted, "Contratos com término"):
+                        elif fuzzy_contains(combined_extracted, "contratos com término") or fuzzy_contains(combined_extracted, "contratos com termino"):
                             logging.info("execute_vsloader: Contratos com término (não 033). Texto identificado: %s", combined_extracted)
                             break
-                        elif fuzzy_contains(combined_extracted, "Emissão do Recibo") and fuzzy_contains(combined_extracted, "competência"):
+                        elif fuzzy_contains(combined_extracted, "emissão do recibo") and fuzzy_contains(combined_extracted, "competência"):
                             logging.info("execute_vsloader: Emissão do Recibo/Competência (não 033). Texto identificado: %s", combined_extracted)
                             break
                         elif (
-                            fuzzy_contains(combined_extracted, "Competência de trabalho:")
-                            and fuzzy_contains(combined_extracted, "Período Fechado")
-                            and fuzzy_contains(combined_extracted, "(Faturamento)")
+                            fuzzy_contains(combined_extracted, "competência de trabalho:")
+                            and fuzzy_contains(combined_extracted, "período fechado")
+                            and fuzzy_contains(combined_extracted, "(faturamento)")
                         ):
                             logging.info("execute_vsloader: Lobby identificado (Competência/Período Fechado/Faturamento). Texto identificado: %s", combined_extracted)
                             break
                         else:
                             logging.info("execute_vsloader: Nenhuma condição modal identificada (não 033). Texto identificado: %s", combined_extracted)
                         time.sleep(3)
+
                     # No final de cada iteração do laço, realizar 4 cliques em ESC
                     for _ in range(4):
                         pyautogui.press("esc")
@@ -1027,6 +1108,9 @@ def execute_vsloader(shopping):
                 wait_for_focus_change(prev_handle)
                 wait_for_stable_focus(prev_handle)
                 time.sleep(2)
+                repeated_text = None
+                repeat_count = 0
+
                 while True:
                     screenshot1 = capture_screenshot()
                     extracted1 = analyze_screenshot(screenshot1)
@@ -1059,12 +1143,25 @@ def execute_vsloader(shopping):
                         break
 
                     combined_extracted = (extracted1 + " " + extracted2) if extracted1 and extracted2 else (extracted1 or extracted2)
+                    combined_extracted = combined_extracted.strip().lower()
+
+                    if combined_extracted == repeated_text:
+                        repeat_count += 1
+                    else:
+                        repeated_text = combined_extracted
+                        repeat_count = 0
+
+                    if repeat_count >= 20:
+                        logging.error(f"⚠️ Travamento detectado no shopping {shopping} (baixa). Mesmo modal repetido 20x seguidas: {combined_extracted[:100]}...")
+                        kill_vsloader()
+                        raise RuntimeError(f"Travamento detectado no shopping {shopping}")
+
                     screen_width = pyautogui.size().width
                     screen_height = pyautogui.size().height
                     center_x = screen_width // 2
                     center_y = screen_height // 2
 
-                    if fuzzy_contains(combined_extracted, "Alerta VSSC") and fuzzy_contains(combined_extracted, "Foram baixados"):
+                    if fuzzy_contains(combined_extracted, "alerta vssc") and fuzzy_contains(combined_extracted, "foram baixados"):
                         logging.info("execute_vsloader: Print indica ação ESC (baixa - LOG/ESC). Texto identificado: %s", combined_extracted)
                         for _ in range(7):
                             pyautogui.moveTo(center_x, center_y)
@@ -1072,14 +1169,13 @@ def execute_vsloader(shopping):
                             pyautogui.press('esc')
                             time.sleep(1)
                         break
-                    elif fuzzy_contains(combined_extracted, "Alerta VSSC") and fuzzy_contains(combined_extracted, "Recria"):
+                    elif fuzzy_contains(combined_extracted, "alerta vssc") and fuzzy_contains(combined_extracted, "recria"):
                         logging.info("execute_vsloader: Alerta na baixa (Recria). Texto identificado: %s", combined_extracted)
                         pyautogui.moveTo(center_x, center_y)
                         pyautogui.click()
                         pyautogui.press("enter")
                         time.sleep(3)
-                
-                    elif fuzzy_contains(combined_extracted, "Configurar impressão"):     
+                    elif fuzzy_contains(combined_extracted, "configurar impressão"):
                         logging.info("execute_vsloader: Configurar impressão (baixa). Texto identificado: %s", combined_extracted)
                         time.sleep(2)
                         pyautogui.press('tab')
@@ -1098,10 +1194,13 @@ def execute_vsloader(shopping):
                         pyautogui.press('enter')
                         time.sleep(3)
                         break
-                        
                     else:
                         logging.info("execute_vsloader: Nenhuma condição modal identificada (baixa). Texto identificado: %s", combined_extracted)
                     time.sleep(3)
+
+
+                repeated_text = None
+                repeat_count = 0
 
                 while True:
                     screenshot1 = capture_screenshot()
@@ -1135,22 +1234,36 @@ def execute_vsloader(shopping):
                         break
 
                     combined_extracted = (extracted1 + " " + extracted2) if extracted1 and extracted2 else (extracted1 or extracted2)
+                    combined_extracted = combined_extracted.strip().lower()
+
+                    if combined_extracted == repeated_text:
+                        repeat_count += 1
+                    else:
+                        repeated_text = combined_extracted
+                        repeat_count = 0
+
+                    if repeat_count >= 20:
+                        logging.error(f"⚠️ Travamento detectado no shopping {shopping} (baixa - LOG/ESC). Mesmo modal repetido 20x seguidas: {combined_extracted[:100]}...")
+                        kill_vsloader()
+                        raise RuntimeError(f"Travamento detectado no shopping {shopping}")
+
                     screen_width = pyautogui.size().width
                     screen_height = pyautogui.size().height
                     center_x = screen_width // 2
                     center_y = screen_height // 2
 
-                    if fuzzy_contains(combined_extracted, "Alerta VSSC") or fuzzy_contains(combined_extracted, "LOG"):
+                    if fuzzy_contains(combined_extracted, "alerta vssc") or fuzzy_contains(combined_extracted, "log"):
                         logging.info("execute_vsloader: Print indica ação ESC (baixa - LOG/ESC). Texto identificado: %s", combined_extracted)
                         for _ in range(7):
                             pyautogui.moveTo(center_x, center_y)
                             pyautogui.click()
                             pyautogui.press('esc')
                             time.sleep(1)
-                        break  
+                        break
                     else:
                         logging.info("execute_vsloader: Nenhuma condição modal identificada (baixa - LOG/ESC). Texto identificado: %s", combined_extracted)
                     time.sleep(3)
+
 
         else:
             print(f"Shopping de fora do estado")
@@ -1244,6 +1357,9 @@ def execute_vsloader(shopping):
                     time.sleep(0.5)
                     pyautogui.press('up')
 
+                    repeated_text = None
+                    repeat_count = 0
+
                     while True:
                         screenshot1 = capture_screenshot()
                         extracted1 = analyze_screenshot(screenshot1)
@@ -1263,23 +1379,37 @@ def execute_vsloader(shopping):
                             logging.info("execute_vsloader: Lobby identificado (nenhum modal detectado) em ambos os prints (fora do estado). Texto 1: %s Texto 2: %s", extracted1, extracted2)
                             break
                         combined_extracted = (extracted1 + " " + extracted2) if extracted1 and extracted2 else (extracted1 or extracted2)
+                        combined_extracted = combined_extracted.strip().lower()
+
+                        if combined_extracted == repeated_text:
+                            repeat_count += 1
+                        else:
+                            repeated_text = combined_extracted
+                            repeat_count = 0
+
+                        if repeat_count >= 20:
+                            logging.error(f"⚠️ Travamento detectado no shopping {shopping} (fora do estado). Mesmo modal repetido 20x seguidas: {combined_extracted[:100]}...")
+                            kill_vsloader()
+                            raise RuntimeError(f"Travamento detectado no shopping {shopping}")
+
                         screen_width = pyautogui.size().width
                         screen_height = pyautogui.size().height
                         center_x = screen_width // 2
                         center_y = screen_height // 2
-                        if fuzzy_contains(combined_extracted, "Alerta VSSC"):
+                        if fuzzy_contains(combined_extracted, "alerta vssc"):
                             logging.info("execute_vsloader: Print indica ação ENTER (fora do estado). Texto identificado: %s", combined_extracted)
                             pyautogui.moveTo(center_x, center_y)
                             pyautogui.click()
                             pyautogui.press("enter")
                             time.sleep(1)
                             break
-                        elif fuzzy_contains(combined_extracted, "Leitura do Arquivo CNAB"):
+                        elif fuzzy_contains(combined_extracted, "leitura do arquivo cnab"):
                             logging.info("execute_vsloader: Tela 'Leitura do Arquivo CNAB' identificada (fora do estado). Texto identificado: %s", combined_extracted)
                             break
                         else:
                             logging.info("execute_vsloader: Nenhuma condição modal identificada (fora do estado). Texto identificado: %s", combined_extracted)
                         time.sleep(3)
+
                     time.sleep(2)
 
                     folder_selecionado = os.path.dirname(fullpath_local)
@@ -1327,6 +1457,9 @@ def execute_vsloader(shopping):
                     pyautogui.press('enter')
                     time.sleep(2)
                     pyautogui.press('enter')
+                    repeated_text = None
+                    repeat_count = 0
+
                     while True:
                         screenshot1 = capture_screenshot()
                         extracted1 = analyze_screenshot(screenshot1)
@@ -1338,15 +1471,28 @@ def execute_vsloader(shopping):
                             time.sleep(3)
                             continue
                         combined_tmp = (extracted1 or "") + " " + (extracted2 or "")
-                        if fuzzy_contains(combined_tmp, "LEITURA CONCLUÍDA"):
+                        combined_tmp = combined_tmp.strip().lower()
+
+                        if combined_tmp == repeated_text:
+                            repeat_count += 1
+                        else:
+                            repeated_text = combined_tmp
+                            repeat_count = 0
+
+                        if repeat_count >= 20:
+                            logging.error(f"⚠️ Travamento detectado no shopping {shopping} (fora do estado/033). Mesmo modal repetido 20x seguidas: {combined_tmp[:100]}...")
+                            kill_vsloader()
+                            raise RuntimeError(f"Travamento detectado no shopping {shopping}")
+
+                        if fuzzy_contains(combined_tmp, "leitura concluída"):
                             logging.info("execute_vsloader: Leitura concluída (fora do estado/033). Texto identificado: %s", combined_tmp)
                             cx = pyautogui.size().width // 2
                             cy = pyautogui.size().height // 2
                             pyautogui.moveTo(cx, cy)
                             pyautogui.click()
                             break
-                        elif fuzzy_contains(combined_tmp, "Alerta VSSC"):
-                            logging.info("execute_vsloader: Alerta na baixa (Recria). Texto identificado: %s", combined_extracted)
+                        elif fuzzy_contains(combined_tmp, "alerta vssc"):
+                            logging.info("execute_vsloader: Alerta na baixa (Recria). Texto identificado: %s", combined_tmp)
                             pyautogui.moveTo(center_x, center_y)
                             pyautogui.click()
                             pyautogui.press("enter")
@@ -1354,6 +1500,7 @@ def execute_vsloader(shopping):
                         else:
                             logging.info("execute_vsloader: Aguardando 'LEITURA CONCLUÍDA' (fora do estado/033). Texto identificado: %s", combined_tmp)
                         time.sleep(3)
+
                     for _ in range(4):
                         pyautogui.press('esc')
                         time.sleep(0.3)
@@ -1398,6 +1545,9 @@ def execute_vsloader(shopping):
                     pyautogui.click()
                     
                     time.sleep(2)
+                    repeated_text = None
+                    repeat_count = 0
+
                     while True:
                         screenshot1 = capture_screenshot()
                         extracted1 = analyze_screenshot(screenshot1)
@@ -1417,11 +1567,24 @@ def execute_vsloader(shopping):
                             logging.info("execute_vsloader: Lobby identificado (nenhum modal detectado) em ambos os prints (fora do estado/baixa). Texto 1: %s Texto 2: %s", extracted1, extracted2)
                             break
                         combined_extracted = (extracted1 + " " + extracted2) if extracted1 and extracted2 else (extracted1 or extracted2)
+                        combined_extracted = combined_extracted.strip().lower()
+
+                        if combined_extracted == repeated_text:
+                            repeat_count += 1
+                        else:
+                            repeated_text = combined_extracted
+                            repeat_count = 0
+
+                        if repeat_count >= 20:
+                            logging.error(f"⚠️ Travamento detectado no shopping {shopping} (fora do estado/baixa). Mesmo modal repetido 20x seguidas: {combined_extracted[:100]}...")
+                            kill_vsloader()
+                            raise RuntimeError(f"Travamento detectado no shopping {shopping}")
+
                         screen_width = pyautogui.size().width
                         screen_height = pyautogui.size().height
                         center_x = screen_width // 2
                         center_y = screen_height // 2
-                        if fuzzy_contains(combined_extracted, "Alerta VSSC") and fuzzy_contains(combined_extracted, "Foram baixados"):
+                        if fuzzy_contains(combined_extracted, "alerta vssc") and fuzzy_contains(combined_extracted, "foram baixados"):
                             logging.info("execute_vsloader: Print indica ação ESC (baixa - LOG/ESC). Texto identificado: %s", combined_extracted)
                             for _ in range(7):
                                 pyautogui.moveTo(center_x, center_y)
@@ -1429,20 +1592,20 @@ def execute_vsloader(shopping):
                                 pyautogui.press('esc')
                                 time.sleep(1)
                             break
-                        elif fuzzy_contains(combined_extracted, "Alerta VSSC") and fuzzy_contains(combined_extracted, "Recria"):
+                        elif fuzzy_contains(combined_extracted, "alerta vssc") and fuzzy_contains(combined_extracted, "recria"):
                             logging.info("execute_vsloader: Alerta na baixa (fora do estado/Recria). Texto identificado: %s", combined_extracted)
                             pyautogui.moveTo(center_x, center_y)
                             pyautogui.click()
                             pyautogui.press("enter")
                             time.sleep(3)
-                        elif fuzzy_contains(combined_extracted, "Alerta VSSC"):
+                        elif fuzzy_contains(combined_extracted, "alerta vssc"):
                             logging.info("execute_vsloader: Erro de alerta. Texto identificado: %s", combined_extracted)
                             for _ in range(5):
                                 pyautogui.press('esc')
                                 time.sleep(0.5)
                             time.sleep(3)
                             break
-                        elif fuzzy_contains(combined_extracted, "Configurar impressão"):
+                        elif fuzzy_contains(combined_extracted, "configurar impressão"):
                             logging.info("execute_vsloader: Configurar impressão (fora do estado/baixa). Texto identificado: %s", combined_extracted)
                             time.sleep(2)
                             pyautogui.press('tab')
@@ -1465,6 +1628,10 @@ def execute_vsloader(shopping):
                             logging.info("execute_vsloader: Nenhuma condição modal identificada (fora do estado/baixa). Texto identificado: %s", combined_extracted)
                         time.sleep(3)
 
+
+                    repeated_text = None
+                    repeat_count = 0
+
                     while True:
                         screenshot1 = capture_screenshot()
                         extracted1 = analyze_screenshot(screenshot1)
@@ -1484,11 +1651,24 @@ def execute_vsloader(shopping):
                             logging.info("execute_vsloader: Lobby identificado (nenhum modal detectado) em ambos os prints (fora do estado/baixa - LOG/ESC). Texto 1: %s Texto 2: %s", extracted1, extracted2)
                             break
                         combined_extracted = (extracted1 + " " + extracted2) if extracted1 and extracted2 else (extracted1 or extracted2)
+                        combined_extracted = combined_extracted.strip().lower()
+
+                        if combined_extracted == repeated_text:
+                            repeat_count += 1
+                        else:
+                            repeated_text = combined_extracted
+                            repeat_count = 0
+
+                        if repeat_count >= 20:
+                            logging.error(f"⚠️ Travamento detectado no shopping {shopping} (fora do estado/baixa - LOG/ESC). Mesmo modal repetido 20x seguidas: {combined_extracted[:100]}...")
+                            kill_vsloader()
+                            raise RuntimeError(f"Travamento detectado no shopping {shopping}")
+
                         screen_width = pyautogui.size().width
                         screen_height = pyautogui.size().height
                         center_x = screen_width // 2
                         center_y = screen_height // 2
-                        if fuzzy_contains(combined_extracted, "Alerta VSSC") or fuzzy_contains(combined_extracted, "LOG"):
+                        if fuzzy_contains(combined_extracted, "alerta vssc") or fuzzy_contains(combined_extracted, "log"):
                             logging.info("execute_vsloader: Print indica ação ESC (fora do estado/baixa - LOG/ESC). Texto identificado: %s", combined_extracted)
                             for _ in range(7):
                                 pyautogui.moveTo(center_x, center_y)
@@ -1499,6 +1679,7 @@ def execute_vsloader(shopping):
                         else:
                             logging.info("execute_vsloader: Nenhuma condição modal identificada (fora do estado/baixa - LOG/ESC). Texto identificado: %s", combined_extracted)
                         time.sleep(3)
+
 
 
 

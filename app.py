@@ -1,5 +1,3 @@
-# app.py
-
 import os
 import time
 import subprocess
@@ -8,17 +6,15 @@ import requests
 from threading import Thread
 from flask import Flask, render_template, request, jsonify
 import json
-logging.basicConfig(level=logging.DEBUG)
 
+logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
 
-# ====== Banco simples em memória (lista) ======
-# ====== Banco persistente em disco ======
-
+# ====== Configuração ======
 logging.getLogger('werkzeug').setLevel(logging.INFO)
-
 COMMANDS_FILE = "commands.json"
 
+# ====== Funções utilitárias ======
 def load_commands():
     if os.path.exists(COMMANDS_FILE):
         try:
@@ -36,7 +32,7 @@ def save_commands(data):
     except Exception as e:
         logging.error(f"Erro ao salvar comandos: {e}")
 
-# Carrega a fila persistente
+# ====== Banco persistente ======
 commands = load_commands()
 command_counter = len(commands) + 1
 
@@ -45,8 +41,7 @@ command_counter = 1  # reinicia IDs
 save_commands(commands)
 logging.info(">>> Lista de comandos limpa ao iniciar servidor.")
 
-
-# ====== Funções do agente (lado cliente) ======
+# ====== Agente cliente ======
 SERVER_URL = "http://127.0.0.1:5000"
 
 def execute_command():
@@ -62,6 +57,7 @@ def execute_command():
             logging.debug("Nenhum comando pendente.")
             return
 
+        # --- Conciliação ---
         if command.startswith("execute_conciliacao::"):
             shopping = command.split("::", 1)[1]
             exe_path = r"C:\AUTOMACAO\conciliacao\bots\conc_shopping.exe"
@@ -71,6 +67,7 @@ def execute_command():
             else:
                 logging.error(f"conc_shopping.exe não encontrado em {exe_path}")
 
+        # --- VSLoader ---
         elif command == "execute_vsloader":
             app_path = r"C:\Program Files\Victor & Schellenberger_FAT_HOM\VSSC_ILHA_HOM\VSLOADER.exe"
             if os.path.exists(app_path):
@@ -78,6 +75,19 @@ def execute_command():
                 logging.info("VSLOADER iniciado com sucesso!")
             else:
                 logging.error(f"VSLOADER não encontrado em {app_path}")
+
+        # --- Faturamento ---
+        elif command.startswith("execute_faturamento::"):
+            try:
+                _, acao, shopping, tipo = command.split("::")
+                exe_path = r"C:\AUTOMACAO\faturamento\bots\faturamento.exe"
+                if os.path.exists(exe_path):
+                    subprocess.Popen([exe_path, acao, shopping, tipo])
+                    logging.info(f"Faturamento ({acao}) iniciado para {shopping} ({tipo})")
+                else:
+                    logging.error(f"faturamento.exe não encontrado em {exe_path}")
+            except Exception as err:
+                logging.error(f"Erro ao interpretar comando de faturamento: {err}")
 
         # Atualiza status
         try:
@@ -88,24 +98,25 @@ def execute_command():
     except Exception as e:
         logging.error(f"Erro no agente: {e}")
 
-
 def run_client_agent():
     logging.info("Agente de automação iniciado.")
     while True:
         execute_command()
         time.sleep(5)
 
-
-# Se você quiser rodar o agente no mesmo processo do servidor:
+# Se quiser rodar o agente junto com o servidor:
 # agent_thread = Thread(target=run_client_agent, daemon=True)
 # agent_thread.start()
 
-
 # ====== Rotas Web ======
+
 @app.route('/')
 def index():
-    return render_template('dashboard.html')
+    return render_template('conciliacao.html', title="Conciliação", active="conciliacao")
 
+@app.route('/faturamento')
+def faturamento():
+    return render_template('faturamento.html', title="Faturamento", active="faturamento")
 
 @app.route('/start_conciliacao')
 def start_conciliacao():
@@ -126,8 +137,26 @@ def start_conciliacao():
     save_commands(commands)
     return f"Comando enviado para executar conc_shopping com {shopping}"
 
+@app.route('/start_faturamento')
+def start_faturamento():
+    """Enfileira comandos de faturamento"""
+    global commands, command_counter
+    shopping = request.args.get('shopping')
+    tipo = request.args.get('tipo')
+    acao = request.args.get('acao')
+    if not (shopping and tipo and acao):
+        return "Parâmetros incompletos", 400
 
-
+    cmd = {
+        "id": command_counter,
+        "command": f"execute_faturamento::{acao}::{shopping}::{tipo}",
+        "status": "pending",
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    commands.append(cmd)
+    command_counter += 1
+    save_commands(commands)
+    return f"Comando de {acao} ({tipo}) enviado para {shopping}"
 
 @app.route('/start_vsloader')
 def start_vsloader():
@@ -141,7 +170,6 @@ def start_vsloader():
     commands.append(cmd)
     command_counter += 1
     return "Comando enviado para executar VSLOADER.exe"
-
 
 @app.route('/get_command')
 def get_command():
@@ -177,9 +205,5 @@ def update_command():
         return jsonify({"message": "Command completed successfully."})
     return jsonify({"error": "Command not found."}), 404
 
-
-
-
 if __name__ == '__main__':
-    # Roda local em http://127.0.0.1:5000
     app.run(host="0.0.0.0", port=5000, debug=True)

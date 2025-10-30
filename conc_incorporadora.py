@@ -11,6 +11,12 @@ from googleapiclient.http import MediaFileUpload
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 
+# Garante que a pasta de trabalho seja a mesma do executável
+if getattr(sys, 'frozen', False):
+    os.chdir(os.path.dirname(sys.executable))
+else:
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 # === Configuração do Drive ===
 # Para conseguir listar/apagar arquivos antigos use escopo completo
 SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -29,13 +35,24 @@ TOKEN_PATH = os.path.join(BASE_DIR, 'token.json')
 CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
 
 
-def criar_zip(network_path, target_date, output_dir):
+def criar_zip(network_path, output_dir):
     """
-    Cria arquivos.zip contendo todos os .RET do dia 'target_date' em 'network_path'
+    Cria 'arquivos.zip' contendo todos os arquivos .RET do dia atual,
+    exceto quando for segunda-feira — nesse caso, pega os arquivos de sábado.
     """
+
+    hoje = datetime.date.today()
+    # Se for segunda, pega sábado (2 dias antes)
+    if hoje.weekday() == 0:  # 0 = segunda-feira
+        target_date = hoje - datetime.timedelta(days=2)
+        print(f"[info] Hoje é segunda-feira → buscando arquivos de {target_date} (sábado).")
+    else:
+        target_date = hoje
+        print(f"[info] Buscando arquivos de {target_date} (dia atual).")
+
     zip_filename = os.path.join(output_dir, "arquivos.zip")
 
-    # Remove arquivo local antigo
+    # Remove arquivo ZIP antigo
     if os.path.exists(zip_filename):
         try:
             os.remove(zip_filename)
@@ -46,6 +63,7 @@ def criar_zip(network_path, target_date, output_dir):
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
 
+    count = 0
     with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for empresa in os.listdir(network_path):
             empresa_path = os.path.join(network_path, empresa)
@@ -58,14 +76,18 @@ def criar_zip(network_path, target_date, output_dir):
                 for arquivo in os.listdir(banco_path):
                     if arquivo.lower().endswith(".ret"):
                         arquivo_path = os.path.join(banco_path, arquivo)
-                        mod_date = datetime.datetime.fromtimestamp(
-                            os.path.getmtime(arquivo_path)
-                        ).date()
-                        if mod_date == target_date:
-                            zipf.write(arquivo_path, arcname=arquivo)
+                        try:
+                            mod_date = datetime.date.fromtimestamp(os.path.getmtime(arquivo_path))
+                            if mod_date == target_date:
+                                zipf.write(arquivo_path, arcname=arquivo)
+                                count += 1
+                                print(f"[zip] Incluído: {arquivo}")
+                        except Exception as e:
+                            print(f"[aviso] Erro ao processar {arquivo}: {e}")
 
-    print(f"[OK] Arquivo ZIP criado em: {zip_filename}")
+    print(f"[OK] ZIP criado com {count} arquivos do dia {target_date}: {zip_filename}")
     return zip_filename
+
 
 
 def autenticar_drive():
@@ -148,14 +170,11 @@ def main():
     # Caminho na rede (Windows ou mapeado)
     network_path = r"\\192.168.18.4\hnc\COBRANCA_INCORPORACAO\RETORNO"
 
-    # Data alvo: hoje
-    target_date = datetime.date.today()
-
     # Diretório local onde salvar o ZIP
     output_dir = r"C:\AUTOMACAO\conciliacao"
 
     # 1. Cria ZIP (já limpa antigo local)
-    zip_path = criar_zip(network_path, target_date, output_dir)
+    zip_path = criar_zip(network_path, output_dir)
 
     # 2. Autentica Drive
     service = autenticar_drive()
@@ -167,5 +186,14 @@ def main():
     upload_to_drive(service, zip_path, folder_id=DRIVE_FOLDER_ID)
 
 
+
 if __name__ == "__main__":
-    main()
+    try:
+        with open("conciliacao_log.txt", "a", encoding="utf-8") as log:
+            log.write(f"[{datetime.datetime.now()}] Iniciando execução\n")
+        main()
+        with open("conciliacao_log.txt", "a", encoding="utf-8") as log:
+            log.write(f"[{datetime.datetime.now()}] Execução concluída com sucesso\n")
+    except Exception as e:
+        with open("conciliacao_log.txt", "a", encoding="utf-8") as log:
+            log.write(f"[{datetime.datetime.now()}] ERRO: {e}\n")

@@ -1,31 +1,25 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
-block_cipher = None
-
-
 a = Analysis(
     ['conc_incorporadora.py'],
     pathex=[],
     binaries=[],
-    datas=[('credentials.json', '.')],
-    hiddenimports=['pyexcel_xls', 'pyexcel_xlsx', 'pyexcel_io', 'pyexcel_io.readers', 'pyexcel_io.writers', 'pyexcel.plugins.parsers.excel', 'pyexcel.plugins.renderers.excel', 'pyexcel.plugins.sources.file_input', 'pyexcel.plugins.sources.file_output', 'google_auth_oauthlib', 'googleapiclient', 'googleapiclient.discovery', 'googleapiclient.http', 'google.auth', 'google.auth.transport.requests'],
+    datas=[],
+    hiddenimports=['google.auth', 'google.auth.transport.requests', 'google.oauth2.credentials', 'google_auth_oauthlib.flow', 'googleapiclient.discovery', 'googleapiclient.http', 'googleapiclient.errors', 'httplib2', 'uritemplate'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
     noarchive=False,
+    optimize=0,
 )
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+pyz = PYZ(a.pure)
 
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
-    a.zipfiles,
     a.datas,
     [],
     name='conc_incorporadora',
