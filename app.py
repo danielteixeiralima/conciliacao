@@ -120,22 +120,32 @@ def faturamento():
 
 @app.route('/start_conciliacao')
 def start_conciliacao():
-    """Enfileira conciliação para um shopping"""
+    """Enfileira conciliação para todos os shoppings automaticamente"""
     global commands, command_counter
-    shopping = request.args.get('shopping')
-    if not shopping:
-        return "Shopping não informado", 400
 
-    cmd = {
-        "id": command_counter,
-        "command": f"execute_conciliacao::{shopping}",
-        "status": "pending",
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-    }
-    commands.append(cmd)
-    command_counter += 1
+    # lista de shoppings
+    shoppings = [
+        "Shopping da Ilha",
+        "Shopping Mestre Álvaro",
+        "Shopping Moxuara",
+        "Shopping Montserrat",
+        "Shopping Metrópole",
+        "Shopping Rio Poty",
+        "Shopping Praia da Costa"
+    ]
+
+    for shopping in shoppings:
+        cmd = {
+            "id": command_counter,
+            "command": f"execute_conciliacao::{shopping}",
+            "status": "pending",
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        commands.append(cmd)
+        command_counter += 1
+
     save_commands(commands)
-    return f"Comando enviado para executar conc_shopping com {shopping}"
+    return f"Comandos de conciliação enfileirados para {len(shoppings)} shoppings."
 
 @app.route('/start_faturamento')
 def start_faturamento():
