@@ -33,6 +33,8 @@ pyautogui.FAILSAFE = False  # CUIDADO: não encosta nos cantos da tela para abor
 pyautogui.PAUSE = 0.1       # pequeno delay entre ações (deixa mais estável)
 import psutil
 import signal
+from dotenv import load_dotenv
+load_dotenv()
 
 br_holidays = Brazil()
 
@@ -107,12 +109,14 @@ def determine_variant(shopping):
 #     format='%(asctime)s %(levelname)s:%(message)s'
 # )
  
+
+
 for w in Desktop(backend="uia").windows():
     logging.info(w.window_text())
 
-openai.api_key = "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"
+openai.api_key = os.getenv("OPENAI_API_KEY")
+anthropic = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-anthropic = Anthropic(api_key='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')   
 
 shopping_fases_tipo2 = {
     "Shopping Mestre Álvaro": {
