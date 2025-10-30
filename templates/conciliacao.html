@@ -35,12 +35,9 @@
 </div>
 
 <script>
-const form = document.getElementById('shoppingForm');
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const shopping = document.getElementById('shopping').value;
-  if (!shopping) return alert('Selecione um shopping.');
-  const resp = await fetch(`/start_conciliacao?shopping=${encodeURIComponent(shopping)}`);
+const startBtn = document.getElementById('startAll');
+startBtn.addEventListener('click', async () => {
+  const resp = await fetch('/start_conciliacao');
   alert(await resp.text());
   updateStatus();
 });
@@ -67,4 +64,5 @@ async function updateStatus() {
 setInterval(updateStatus, 5000);
 updateStatus();
 </script>
+
 {% endblock %}
