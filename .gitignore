@@ -1,0 +1,62 @@
+# =========================
+# AMBIENTE PYTHON
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# =========================
+# VIRTUAL ENVIRONMENT
+# =========================
+venv/
+env/
+.venv/
+
+# =========================
+# BUILD / DIST / PYINSTALLER
+# =========================
+build/
+dist/
+*.spec
+
+# =========================
+# LOGS / OUTPUTS
+# =========================
+*.log
+*.txt
+*.out
+*.err
+
+# =========================
+# CACHE / TEMP
+# =========================
+*.tmp
+*.temp
+*.bak
+*.swp
+.DS_Store
+
+# =========================
+# CONFIG / LOCAL
+# =========================
+*.env
+.env*
+.idea/
+.vscode/
+
+# =========================
+# COMPILADOS E BINÁRIOS
+# =========================
+*.exe
+*.dll
+*.so
+*.dylib
+
+# =========================
+# OUTROS DIRETÓRIOS GERADOS
+# =========================
+__pycache__/
+Logs/
+prints/
+ret_*/
