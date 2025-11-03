@@ -47,7 +47,10 @@ import signal
 
 br_holidays = Brazil()
 
-log_dir = os.path.join(os.getcwd(), 'Logs')
+BASE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+log_dir = os.path.join(BASE_DIR, 'Logs')
+os.makedirs(log_dir, exist_ok=True)
+
 os.makedirs(log_dir, exist_ok=True)
 _screenshot_counter = count(1) 
 
