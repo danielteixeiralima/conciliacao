@@ -531,24 +531,31 @@ def execute_vsloader(shopping):
             friday_bd = previous_business_day(today - timedelta(days=1))  # “sexta útil”
 
             def want_file(file_date, file_mtime):
-                t = file_mtime.time()
+                """
+                Segunda-feira: copia arquivos de hoje, sexta útil e sábado (se não for feriado).
+                Ignora o horário de modificação.
+                """
                 if file_date == today:
-                    return t < six_am                       # hoje: só até 06h
+                    return True
                 if (saturday not in br_holidays) and (file_date == saturday):
-                    return True                             # sábado inteiro (se não for feriado)
+                    return True
                 if file_date == friday_bd:
-                    return t >= six_am                      # “sexta útil” após 06h
+                    return True
                 return False
         else:
             prev_bd = previous_business_day(today)
 
             def want_file(file_date, file_mtime):
-                t = file_mtime.time()
+                """
+                Terça a sexta: copia arquivos de hoje e do último dia útil.
+                Ignora o horário de modificação.
+                """
                 if file_date == today:
-                    return t < six_am                       # hoje: só até 06h
+                    return True
                 if file_date == prev_bd:
-                    return t >= six_am                      # dia útil anterior: após 06h
+                    return True
                 return False
+
 
         def dst_dir_for_rubrica(rub):
             r = rub.upper()
@@ -584,7 +591,9 @@ def execute_vsloader(shopping):
                     continue
 
                 if want_file(file_date, file_mtime):
+                    logging.info(f"[COPIANDO] {fn} (data: {file_date}) → {dst}")
                     shutil.copy2(fullpath, os.path.join(dst, fn))
+
 
 
 
