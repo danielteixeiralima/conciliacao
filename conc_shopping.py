@@ -4,11 +4,25 @@
 #                              conciliacao.py                                 #
 ###############################################################################
 
+import os
+import sys
+from dotenv import load_dotenv
+
+# 🔧 Detecta diretório correto mesmo em .exe (PyInstaller) ou .py
+BASE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+env_path = os.path.join(BASE_DIR, '.env')
+
+# 🔄 Carrega variáveis do .env
+load_dotenv(env_path)
+
+# ✅ (opcional) debug temporário — pode remover depois
+print(f"[DEBUG] .env carregado de: {env_path}")
+print(f"[DEBUG] OPENAI_API_KEY detectado: {bool(os.getenv('OPENAI_API_KEY'))}")
+
 import ctypes
 import pyautogui
 import logging
 import time
-import os
 import base64
 from anthropic import Anthropic
 from gera_txt import generate_txts_from_xls
@@ -23,33 +37,19 @@ import calendar
 from holidays import Brazil
 import openai
 import difflib
-import sys
 from utils import login
 from datetime import datetime, time as dt_time, timedelta
 import shutil
 from itertools import count
 import re
-pyautogui.FAILSAFE = False  # CUIDADO: não encosta nos cantos da tela para abortar
-pyautogui.PAUSE = 0.1       # pequeno delay entre ações (deixa mais estável)
 import psutil
 import signal
-from dotenv import load_dotenv
-load_dotenv()
 
 br_holidays = Brazil()
 
 log_dir = os.path.join(os.getcwd(), 'Logs')
 os.makedirs(log_dir, exist_ok=True)
 _screenshot_counter = count(1) 
-
-# determina qual shopping (vai sobrescrever o arquivo se já existir)
-# shopping = sys.argv[1] if len(sys.argv) > 1 else 'default'
-# print(f"[DEBUG] shopping = {shopping}")
-
-# substitui caracteres impróprios para nome de arquivo, se for o caso
-# safe_shopping = shopping.replace(' ', '_').replace('á','a').replace('ó','o')  # etc.
-
-# log_path = os.path.join(log_dir, f"{safe_shopping}.log")
 
 portador_map = {
     "SDI": [
@@ -1178,6 +1178,12 @@ def execute_vsloader(shopping):
                         pyautogui.moveTo(center_x, center_y)
                         pyautogui.click()
                         pyautogui.press("enter")
+                        time.sleep(3)
+                    elif fuzzy_contains(combined_extracted, "alerta vssc"):
+                        logging.info("execute_vsloader: Alerta na baixa. Texto identificado: %s", combined_extracted)
+                        pyautogui.moveTo(center_x, center_y)
+                        pyautogui.click()
+                        pyautogui.press("esc")
                         time.sleep(3)
                     elif fuzzy_contains(combined_extracted, "configurar impressão"):
                         logging.info("execute_vsloader: Configurar impressão (baixa). Texto identificado: %s", combined_extracted)

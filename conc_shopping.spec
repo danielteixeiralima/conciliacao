@@ -5,7 +5,7 @@ a = Analysis(
     ['conc_shopping.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('.env', '.')],
     hiddenimports=['pyautogui', 'pywinauto', 'cv2', 'PIL', 'numpy', 'openai', 'anthropic', 'holidays', 'pyexcel_xls'],
     hookspath=[],
     hooksconfig={},
