@@ -38,7 +38,10 @@ load_dotenv()
 
 br_holidays = Brazil()
 
-log_dir = os.path.join(os.getcwd(), 'Logs')
+base_dir = os.path.dirname(os.path.abspath(__file__))
+log_dir = os.path.join(base_dir, '..', 'Logs')
+log_dir = os.path.abspath(log_dir)
+
 os.makedirs(log_dir, exist_ok=True)
 _screenshot_counter = count(1) 
 
