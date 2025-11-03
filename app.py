@@ -61,11 +61,17 @@ def execute_command():
         if command.startswith("execute_conciliacao::"):
             shopping = command.split("::", 1)[1]
             exe_path = r"C:\AUTOMACAO\conciliacao\bots\conc_shopping.exe"
+            exe_dir = os.path.dirname(exe_path)
             if os.path.exists(exe_path):
-                subprocess.Popen([exe_path, shopping])
-                logging.info(f"Conciliação iniciada para {shopping}")
+                subprocess.Popen(
+                    [exe_path, shopping],
+                    cwd=exe_dir, 
+                    shell=True, # 🔧 força o diretório correto
+                )
+                logging.info(f"Conciliação iniciada para {shopping} (cwd={exe_dir})")
             else:
                 logging.error(f"conc_shopping.exe não encontrado em {exe_path}")
+
 
         # --- VSLoader ---
         elif command == "execute_vsloader":
