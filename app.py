@@ -142,7 +142,7 @@ def start_conciliacao():
     for shopping in shoppings:
         cmd = {
             "id": command_counter,
-            "command": f"{shopping}",
+            "command": f"execute_conciliacao::{shopping}",
             "status": "pending",
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
         }
