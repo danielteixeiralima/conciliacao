@@ -34,16 +34,47 @@ pyautogui.PAUSE = 0.1       # pequeno delay entre ações (deixa mais estável)
 import psutil
 import signal
 from dotenv import load_dotenv
-load_dotenv()
+import os
+import tempfile
+# Força o carregamento do .env da mesma pasta do script,
+# mesmo quando o .exe é chamado via web, cron ou manual.
+base_dir = os.path.dirname(os.path.abspath(__file__))
+env_path = os.path.join(base_dir, ".env")
+
+if os.path.exists(env_path):
+    load_dotenv(dotenv_path=env_path)
+    print(f"[DEBUG] .env carregado de: {env_path}")
+else:
+    print(f"[ERRO] .env não encontrado em: {env_path}")
 
 br_holidays = Brazil()
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
-log_dir = os.path.join(base_dir, '..', 'Logs')
-log_dir = os.path.abspath(log_dir)
+# ============================================================
+# 🔧 Configuração global de diretórios centralizados
+# Logs e prints sempre vão para o diretório raiz do projeto
+# ============================================================
+
+# Diretório raiz fixo (independente do local do script)
+# ============================================================
+# 🔧 Diretórios fixos absolutos (garante funcionamento via .exe)
+# ============================================================
+
+# Define explicitamente o caminho raiz fixo no Windows
+root_dir = r"C:\AUTOMACAO\conciliacao"
+
+# Garante as pastas principais
+log_dir = os.path.join(root_dir, "Logs")
+prints_folder = os.path.join(root_dir, "prints")
 
 os.makedirs(log_dir, exist_ok=True)
-_screenshot_counter = count(1) 
+os.makedirs(prints_folder, exist_ok=True)
+
+print(f"[DEBUG] Logs fixos em: {log_dir}")
+print(f"[DEBUG] Prints fixos em: {prints_folder}")
+
+_screenshot_counter = count(1)
+
+
 
 # determina qual shopping (vai sobrescrever o arquivo se já existir)
 # shopping = sys.argv[1] if len(sys.argv) > 1 else 'default'
@@ -181,7 +212,6 @@ def select_cnab_files(folder):
     arquivos.sort()
     return arquivos
 
-prints_folder = os.path.join(os.getcwd(), "prints")
 # A cada screenshot, um nome único será gerado para acumular os prints
 SCREENSHOT_PATH = os.path.join(prints_folder, "monitor_screenshot.png")
 if not os.path.exists(prints_folder):
@@ -189,9 +219,23 @@ if not os.path.exists(prints_folder):
 
 IS_SEGURO = False
 
-RUN_ID = datetime.now().strftime("%Y%m%d-%H%M%S")
-RUN_PRINTS_DIR = os.path.join(prints_folder, RUN_ID)
-os.makedirs(RUN_PRINTS_DIR, exist_ok=True)
+# 🕒 Cria pasta de prints com data/hora em formato brasileiro
+RUN_ID = datetime.now().strftime("%d-%m-%Y_%H-%M")
+
+RUN_PRINTS_DIR = os.path.join(r"C:\AUTOMACAO\conciliacao\prints", RUN_ID)
+
+try:
+    os.makedirs(RUN_PRINTS_DIR, exist_ok=True)
+    print(f"[DEBUG] Pasta de prints criada com sucesso em: {RUN_PRINTS_DIR}")
+except Exception as e:
+    print(f"[ERRO] Falha ao criar pasta de prints: {e}")
+    RUN_PRINTS_DIR = r"C:\AUTOMACAO\conciliacao\prints_fallback"
+    os.makedirs(RUN_PRINTS_DIR, exist_ok=True)
+    print(f"[DEBUG] Usando pasta alternativa: {RUN_PRINTS_DIR}")
+
+globals()["RUN_PRINTS_DIR"] = RUN_PRINTS_DIR
+
+
 
 def fuzzy_contains(text, sub, threshold=0.8):
     """
@@ -294,15 +338,36 @@ def find_and_click_button(image_path, confidence=0.95):
         logging.error(f"Erro ao localizar o botão: {e}")
 
 def setup_logging_for_shopping(variant):
+    """
+    Configura o logging para o shopping informado.
+    Sempre sobrescreve o arquivo antigo (modo 'w').
+    """
     os.makedirs(log_dir, exist_ok=True)
     logfile = os.path.join(log_dir, f"{variant}.txt")
+
+    # Remove o arquivo anterior para garantir log limpo
+    if os.path.exists(logfile):
+        try:
+            os.remove(logfile)
+            print(f"[DEBUG] Log antigo removido: {logfile}")
+        except Exception as e:
+            print(f"[ERRO] Não foi possível remover {logfile}: {e}")
+
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
+
+    # Remove handlers antigos
     for h in list(logger.handlers):
         logger.removeHandler(h)
+
+    # Cria novo handler sobrescrevendo o arquivo
     fh = logging.FileHandler(logfile, mode='w', encoding='utf-8')
     fh.setFormatter(logging.Formatter('%(asctime)s %(levelname)s:%(message)s'))
     logger.addHandler(fh)
+
+    print(f"[DEBUG] Novo log ativo em: {logfile}")
+
+
 
 def delete_all_prints():
     """
@@ -354,11 +419,25 @@ def click_fase_tipo1(shopping, fase):
 
 
 def capture_screenshot(prefix="monitor"):
+    global RUN_PRINTS_DIR
     """
     Captura a tela e salva com nome único dentro do diretório da execução.
     Ex.: prints/20250811-163300/monitor_0001.png
     """
     idx = next(_screenshot_counter)
+    # Garante que a pasta de execução ainda existe (caso o .exe reinicie ou o antivírus limpe)
+    if not os.path.exists(RUN_PRINTS_DIR):
+        try:
+            os.makedirs(RUN_PRINTS_DIR, exist_ok=True)
+            logging.info(f"[RECOVERY] Pasta de prints recriada dinamicamente: {RUN_PRINTS_DIR}")
+        except Exception as e:
+            import tempfile
+            fallback = os.path.join(tempfile.gettempdir(), f"conc_prints_recovery_{datetime.now().strftime('%H%M%S')}")
+            os.makedirs(fallback, exist_ok=True)
+            logging.warning(f"[RECOVERY] Falha ao recriar pasta original, salvando prints em: {fallback} ({e})")
+            RUN_PRINTS_DIR = fallback
+
+
     filename = f"{prefix}_{idx:04d}.png"
     path = os.path.join(RUN_PRINTS_DIR, filename)
     logging.info(f"Capturando screenshot em {path}")
@@ -498,17 +577,24 @@ def kill_vsloader():
                 logging.error(f"Erro ao tentar encerrar VSLOADER.EXE: {e}")
 def execute_vsloader(shopping):
     print(f"[DEBUG] execute_vsloader recebeu shopping = {shopping}")
-    variant = determine_variant(shopping)
 
+    # 🔧 Garante que o cwd é o mesmo da pasta do script (corrige execução via .exe / servidor)
+    os.chdir(base_dir)
+    print(r"[DEBUG] Diretório de trabalho forçado para: C:\AUTOMACAO\conciliacao")
+
+
+    variant = determine_variant(shopping)
     setup_logging_for_shopping(variant)
     logging.info(f"Iniciando conciliação para shopping '{shopping}' (variant={variant})")
 
+    # 🔍 Loga as janelas ativas para depuração
     logging.info("Listando janelas ativas (Desktop UIA):")
     try:
         for w in Desktop(backend="uia").windows():
             logging.info(w.window_text())
     except Exception as e:
         logging.info(f"Falha ao listar janelas: {e}")
+
 
     if variant in ("SMA", "SMO", "SMS"):
 
@@ -526,7 +612,7 @@ def execute_vsloader(shopping):
 
         # limpeza prévia das pastas de destino
         for sub in ("ret_emp", "ret_con", "ret_fpp"):
-            shutil.rmtree(os.path.join(os.getcwd(), sub), ignore_errors=True)
+            shutil.rmtree(os.path.join(r"C:\AUTOMACAO\conciliacao", sub), ignore_errors=True)
 
         # calcula datas-alvo conforme as regras
         if today.weekday() == 0:  # segunda-feira
@@ -563,31 +649,56 @@ def execute_vsloader(shopping):
             return "ret_fpp"
 
         # varre cada portador e copia somente os .RET desejados
+        # === LOG DE DEPURAÇÃO DA CÓPIA DOS ARQUIVOS .RET ===
+        logging.info(f"[RET_FETCH] Iniciando busca de arquivos .RET para {variant}")
+
         for port in portador_map[variant]:
             src = port["folder"]
-            dst = os.path.join(os.getcwd(), dst_dir_for_rubrica(port["rubrica"]))
+            dst = os.path.join(r"C:\AUTOMACAO\conciliacao", dst_dir_for_rubrica(port["rubrica"]))
             os.makedirs(dst, exist_ok=True)
+            logging.info(f"[RET_FETCH] Verificando portador {port['codigo']} ({port['rubrica']})")
+            logging.info(f"[RET_FETCH] Pasta origem: {src}")
+            logging.info(f"[RET_FETCH] Pasta destino: {dst}")
 
-            for fn in os.listdir(src):
-                if not fn.lower().endswith(".ret"):
-                    continue
+            if not os.path.exists(src):
+                logging.error(f"[RET_FETCH][ERRO] Pasta de origem não encontrada: {src}")
+                continue
 
-                # pega somente a DATA do nome (dd mm yyyy); os 2 últimos dígitos não são hora confiável
+            try:
+                arquivos = [f for f in os.listdir(src) if f.lower().endswith(".ret")]
+            except PermissionError as e:
+                logging.error(f"[RET_FETCH][ERRO] Sem permissão para acessar {src}: {e}")
+                continue
+            except Exception as e:
+                logging.error(f"[RET_FETCH][ERRO] Falha ao listar {src}: {e}")
+                continue
+
+            logging.info(f"[RET_FETCH] {len(arquivos)} arquivo(s) encontrados em {src}")
+
+            for fn in arquivos:
                 m = re.search(r'_(\d{2})(\d{2})(\d{4})\d{2}', fn)
                 if not m:
+                    logging.warning(f"[RET_FETCH][SKIP] Nome fora do padrão: {fn}")
                     continue
 
                 dd, mm, yyyy = m.groups()
                 file_date = datetime.strptime(f"{dd}{mm}{yyyy}", "%d%m%Y").date()
-
                 fullpath = os.path.join(src, fn)
+
                 try:
-                    file_mtime = datetime.fromtimestamp(os.path.getmtime(fullpath))  # horário local
+                    file_mtime = datetime.fromtimestamp(os.path.getmtime(fullpath))
                 except FileNotFoundError:
+                    logging.warning(f"[RET_FETCH][SKIP] Arquivo sumiu: {fullpath}")
                     continue
 
                 if want_file(file_date, file_mtime):
-                    shutil.copy2(fullpath, os.path.join(dst, fn))
+                    try:
+                        shutil.copy2(fullpath, os.path.join(dst, fn))
+                        logging.info(f"[RET_FETCH][COPIADO] {fn} -> {dst}")
+                    except Exception as e:
+                        logging.error(f"[RET_FETCH][ERRO] Falha ao copiar {fn}: {e}")
+                else:
+                    logging.debug(f"[RET_FETCH][IGNORADO] {fn} (data={file_date}, hora={file_mtime.time()}) não passou no filtro")
 
 
 
@@ -747,7 +858,7 @@ def execute_vsloader(shopping):
 
         if variant not in ("SMA", "SMO", "SMS"):
             print(f"Shopping de fora do estado")
-            time.sleep(10)
+            time.sleep(15)
 
             pyautogui.hotkey('alt', 's')
             time.sleep(0.5)
@@ -780,7 +891,8 @@ def execute_vsloader(shopping):
                 pyautogui.press('down')
                 time.sleep(0.3)
                 pyautogui.press('enter')
-                pyautogui.moveRel(110, 45)
+                pyautogui.moveRel(110, 50)
+                # pyautogui.moveRel(110, 45)
                 pyautogui.click()
                 pyautogui.click()
                 time.sleep(1)
@@ -788,6 +900,7 @@ def execute_vsloader(shopping):
                 pyautogui.hotkey('ctrl', 'f')
                 time.sleep(0.5)
                 pyautogui.typewrite(portador["codigo"])
+                logging.info(portador["codigo"])
                 pyautogui.press('enter')
                 time.sleep(3)
                 pyautogui.press('down')
@@ -875,20 +988,74 @@ def execute_vsloader(shopping):
                 pyautogui.moveRel(210,110)
                 pyautogui.click()
                 pyautogui.click()
-                
-            
-                time.sleep(0.5)
-                pyautogui.typewrite(folder_selecionado)
-                time.sleep(2)
-                pyautogui.press('enter')
-
+                # Vai direto para a barra de endereço (atalho universal)
+                                    # Vai direto para a barra de endereço
+                # 🔧 Garante que o seletor de arquivo está ativo
                 time.sleep(3)
+
+                # Abre o menu do sistema da janela ("Restaurar, Mover, Tamanho..." etc.)
                 pyautogui.hotkey('alt', 'space')
                 time.sleep(0.3)
                 pyautogui.press('down')
                 time.sleep(0.3)
                 pyautogui.press('enter')
-                pyautogui.moveRel(-200,65)
+
+                # Move o foco para o campo de endereço (coordenadas seguras)
+                pyautogui.moveRel(0, 200)  # <== AJUSTE: move o mouse até a barra de endereço
+                pyautogui.click()
+                pyautogui.click()
+                time.sleep(0.5)
+
+                time.sleep(3)
+                pyautogui.hotkey('alt', 'space')
+                time.sleep(0.3)                # ==========================================================
+                # 🧩 SELEÇÃO DE ARQUIVO — CORREÇÃO DE CAMINHO E DEBUG
+                # ==========================================================
+                folder_selecionado = portador["folder"]
+                logging.info(f"[CNAB] Portador {portador['codigo']} ({portador['rubrica']}) - Pasta esperada: {folder_selecionado}")
+
+                # 🧭 Verifica se a pasta existe antes de tentar usá-la
+                if not os.path.exists(folder_selecionado):
+                    logging.error(f"[ERRO] Pasta não existe: {folder_selecionado}")
+                else:
+                    arquivos_ret = [f for f in os.listdir(folder_selecionado) if f.lower().endswith('.ret')]
+                    logging.info(f"[CNAB] {len(arquivos_ret)} arquivo(s) .RET disponível(is) em {folder_selecionado}:")
+
+                
+                # 💾 Captura um print do caminho digitado para debug
+                path_debug = os.path.join(RUN_PRINTS_DIR, f"path_debug_{portador['codigo']}_{datetime.now().strftime('%H%M%S')}.png")
+                pyautogui.screenshot(path_debug)
+                logging.info(f"[DEBUG] Screenshot do caminho digitado salvo em: {path_debug}")
+
+                # Confirma o caminho
+                pyautogui.press('enter')
+                time.sleep(2)
+
+                # 🧾 Seleciona o primeiro arquivo .RET encontrado (ou o mais recente)
+                try:
+                    arquivos_ret = sorted(
+                        [f for f in os.listdir(folder_selecionado) if f.lower().endswith(".ret")],
+                        key=lambda f: os.path.getmtime(os.path.join(folder_selecionado, f)),
+                        reverse=True
+                    )
+                    if arquivos_ret:
+                        arquivo_escolhido = arquivos_ret[0]
+                        fullpath = os.path.join(folder_selecionado, arquivo_escolhido)
+                        logging.info(f"[CNAB] Abrindo arquivo: {fullpath}")
+                        pyautogui.typewrite(fullpath)
+                        time.sleep(1)
+                        pyautogui.press('enter')
+                        time.sleep(2)
+                    else:
+                        logging.warning(f"[CNAB] Nenhum arquivo .RET encontrado em {folder_selecionado}")
+                except Exception as e:
+                    logging.error(f"[ERRO] Falha ao listar arquivos em {folder_selecionado}: {e}")
+
+                pyautogui.press('down')
+                time.sleep(0.3)
+                pyautogui.press('enter')
+                pyautogui.moveRel(-200,60)
+                # pyautogui.moveRel(-200,65)
                 pyautogui.click()
                 pyautogui.click()
                 time.sleep(2)
@@ -903,9 +1070,16 @@ def execute_vsloader(shopping):
                         pyautogui.moveRel(250, 0)
                         pyautogui.click()
                         time.sleep(0.3)
+
+                        # ✅ Captura o print antes de digitar o nome do arquivo
+                        debug_print_path = os.path.join(RUN_PRINTS_DIR, f"before_typing_filename_{datetime.now().strftime('%H%M%S')}.png")
+                        pyautogui.screenshot(debug_print_path)
+                        logging.info(f"[DEBUG] Screenshot antes de digitar nome do arquivo salvo em: {debug_print_path}")
+
                         fullpath = os.path.join(folder_selecionado, nome_ret)
                         pyautogui.typewrite(fullpath)
                         pyautogui.press('enter')
+
                         time.sleep(1)
                         pyautogui.press('enter')
                         repeated_text = None
@@ -958,7 +1132,13 @@ def execute_vsloader(shopping):
                             pyautogui.press('esc')
                             time.sleep(0.3)
                 else:
-                    pyautogui.moveRel(250,0)
+                    pyautogui.hotkey('alt', 'space')
+                    time.sleep(0.3)
+                    pyautogui.press('down')
+                    time.sleep(0.3)
+                    pyautogui.press('enter')
+                    pyautogui.moveRel(0,35)
+                    pyautogui.click()
                     pyautogui.click()
                     time.sleep(0.3)
                     pyautogui.press('down')
@@ -1182,6 +1362,16 @@ def execute_vsloader(shopping):
                         pyautogui.click()
                         pyautogui.press("enter")
                         time.sleep(3)
+                    elif fuzzy_contains(combined_extracted, "alerta vssc") and fuzzy_contains(combined_extracted, "não foi baixado"):
+                        logging.info("execute_vsloader: Alerta na baixa (Recria). Texto identificado: %s", combined_extracted)
+                        pyautogui.moveTo(center_x, center_y)
+                        pyautogui.click()
+                        for _ in range(8):
+                            pyautogui.press("esc")
+                            time.sleep(0.5)
+                        
+                        time.sleep(3)
+                        break
                     elif fuzzy_contains(combined_extracted, "configurar impressão"):
                         logging.info("execute_vsloader: Configurar impressão (baixa). Texto identificado: %s", combined_extracted)
                         time.sleep(2)
@@ -1421,6 +1611,10 @@ def execute_vsloader(shopping):
 
                     folder_selecionado = os.path.dirname(fullpath_local)
 
+                    # Garante que o seletor de arquivo está ativo
+                    time.sleep(1)
+
+
                     pyautogui.hotkey('alt', 'space')
                     time.sleep(0.3)
                     pyautogui.press('down')
@@ -1429,10 +1623,41 @@ def execute_vsloader(shopping):
                     pyautogui.moveRel(210,110)
                     pyautogui.click()
                     pyautogui.click()
-                    time.sleep(0.5)
-                    pyautogui.typewrite(folder_selecionado)
-                    time.sleep(2)
+                    # Vai direto para a barra de endereço (atalho universal)
+                                        # Vai direto para a barra de endereço
+                    # 🔧 Garante que o seletor de arquivo está ativo
+                    time.sleep(3)
+
+                    # Abre o menu do sistema da janela ("Restaurar, Mover, Tamanho..." etc.)
+                    pyautogui.hotkey('alt', 'space')
+                    time.sleep(0.3)
+                    pyautogui.press('down')
+                    time.sleep(0.3)
                     pyautogui.press('enter')
+
+                    # Move o foco para o campo de endereço (coordenadas seguras)
+                    pyautogui.moveRel(0, 200)  # <== AJUSTE: move o mouse até a barra de endereço
+                    pyautogui.click()
+                    pyautogui.click()
+                    time.sleep(0.5)
+                    for i in range(70):
+                        pyautogui.press('backspace')
+                   
+                    # Digita o caminho completo da pasta correta
+                    pyautogui.typewrite(folder_selecionado)
+                    time.sleep(1)
+
+                    # 💡 Faz o print antes de apertar Enter, pra registrar o caminho digitado
+                    print_path_debug = os.path.join(RUN_PRINTS_DIR, f"debug_path_{datetime.now().strftime('%H%M%S')}.png")
+                    pyautogui.screenshot(print_path_debug)
+                    logging.info(f"[DEBUG] Screenshot do caminho digitado salvo em: {print_path_debug}")
+
+                    # Pressiona Enter para confirmar
+                    pyautogui.press('enter')
+                    time.sleep(2)
+
+
+
                     time.sleep(3)
                     pyautogui.hotkey('alt', 'space')
                     time.sleep(0.3)
@@ -1716,7 +1941,13 @@ def execute_vsloader(shopping):
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         shopping = sys.argv[1]
+        print(f"[DEBUG] Argumento recebido: {shopping}")
+
+        # Configura o log DO SHOPPING antes de qualquer logging.info
+        variant = determine_variant(shopping)
+        setup_logging_for_shopping(variant)
+
         logging.info(f"Iniciando automação para: {shopping}")
-        execute_vsloader(shopping)   # <-- CHAMADA FALTANDO
+        execute_vsloader(shopping)
     else:
-        logging.error("Nenhum shopping informado")
+        print("[ERRO] Nenhum shopping informado ao chamar o executável.")
