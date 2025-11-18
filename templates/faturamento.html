@@ -2,91 +2,59 @@
 {% block content %}
 <h2 class="mb-4">Faturamento</h2>
 
-<!-- Seção 1: Gerar Cálculos -->
-<div class="card mb-3">
-  <div class="card-header bg-primary text-white">Gerar Cálculos</div>
-  <div class="card-body">
-    <form id="formCalculo">
-      <div class="mb-3">
-        <label for="shopping1" class="form-label">Selecione o Shopping</label>
-        <select id="shopping1" class="form-select">
-          <option value="">-- Escolha --</option>
-          <option value="Shopping da Ilha">Shopping da Ilha</option>
-          <option value="Shopping Mestre Álvaro">Shopping Mestre Álvaro</option>
-          <option value="Shopping Moxuara">Shopping Moxuara</option>
-          <option value="Shopping Montserrat">Shopping Montserrat</option>
-          <option value="Shopping Rio Poty">Shopping Rio Poty</option>
-          <option value="Shopping Metrópole">Shopping Metrópole</option>
-        </select>
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white">Gerar Cálculos</div>
+      <div class="card-body">
+        <form id="formCalculo">
+          <div class="mb-3">
+            <label for="shopping1" class="form-label">Selecione o Shopping</label>
+            <select id="shopping1" class="form-select">
+              <option value="">-- Escolha --</option>
+              <option value="Shopping da Ilha">Shopping da Ilha</option>
+              <option value="Shopping Mestre Álvaro">Shopping Mestre Álvaro</option>
+              <option value="Shopping Moxuara">Shopping Moxuara</option>
+              <option value="Shopping Montserrat">Shopping Montserrat</option>
+              <option value="Shopping Rio Poty">Shopping Rio Poty</option>
+              <option value="Shopping Metrópole">Shopping Metrópole</option>
+            </select>
+          </div>
 
+          <div class="mb-3">
+            <label for="tipo1" class="form-label">Tipo de Faturamento</label>
+            <select id="tipo1" class="form-select">
+              <option value="">-- Escolha --</option>
+              <option value="Postecipados">Postecipados</option>
+              <option value="Antecipados">Antecipados</option>
+              <option value="Atípicos">Atípicos</option>
+            </select>
+          </div>
+
+          <button class="btn btn-success" type="submit">Gerar Cálculos</button>
+        </form>
       </div>
-      <div class="mb-3">
-        <label for="tipo1" class="form-label">Tipo de Faturamento</label>
-        <select id="tipo1" class="form-select">
-          <option value="">-- Escolha --</option>
-          <option value="Postecipados">Postecipados</option>
-          <option value="Antecipados">Antecipados</option>
-          <option value="Atípicos">Atípicos</option>
-        </select>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-secondary text-white">
+        Histórico de Comandos
       </div>
-      <button class="btn btn-success" type="submit">Gerar Cálculos</button>
-    </form>
+      <div class="card-body">
+        <table class="table table-bordered" id="statusTable">
+          <thead>
+            <tr><th>ID</th><th>Comando</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="3">Nenhum comando enviado ainda.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
-
-<!-- Seção 2: Gerar Boletos
-<div class="card mb-3">
-  <div class="card-header bg-warning text-dark">Gerar Boletos</div>
-  <div class="card-body">
-    <form id="formBoletos">
-      <div class="mb-3">
-        <label for="shopping2" class="form-label">Selecione o Shopping</label>
-        <select id="shopping2" class="form-select">
-          <option value="">-- Escolha --</option>
-          <option value="Shopping da Ilha">Shopping da Ilha</option>
-          <option value="Shopping Mestre Álvaro">Shopping Mestre Álvaro</option>
-          <option value="Shopping Moxuara">Shopping Moxuara</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label for="tipo2" class="form-label">Tipo de Faturamento</label>
-        <select id="tipo2" class="form-select">
-          <option value="">-- Escolha --</option>
-          <option value="Mensal">Mensal</option>
-          <option value="Extraordinário">Extraordinário</option>
-        </select>
-      </div>
-      <button class="btn btn-warning" type="submit">Gerar Boletos</button>
-    </form>
-  </div>
-</div> -->
-
-<!-- Seção 3: Enviar Boletos -->
-<!-- <div class="card">
-  <div class="card-header bg-success text-white">Enviar Boletos</div>
-  <div class="card-body">
-    <form id="formEnvio">
-      <div class="mb-3">
-        <label for="shopping3" class="form-label">Selecione o Shopping</label>
-        <select id="shopping3" class="form-select">
-          <option value="">-- Escolha --</option>
-          <option value="Shopping da Ilha">Shopping da Ilha</option>
-          <option value="Shopping Mestre Álvaro">Shopping Mestre Álvaro</option>
-          <option value="Shopping Moxuara">Shopping Moxuara</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label for="tipo3" class="form-label">Tipo de Faturamento</label>
-        <select id="tipo3" class="form-select">
-          <option value="">-- Escolha --</option>
-          <option value="Mensal">Mensal</option>
-          <option value="Extraordinário">Extraordinário</option>
-        </select>
-      </div>
-      <button class="btn btn-primary" type="submit">Enviar Boletos</button>
-    </form>
-  </div>
-</div> -->
 
 <script>
 async function sendCommand(url) {
@@ -100,23 +68,35 @@ async function sendCommand(url) {
 
 document.getElementById('formCalculo').addEventListener('submit', e => {
   e.preventDefault();
-  const s = shopping1.value, t = tipo1.value;
+  const s = document.getElementById("shopping1").value;
+  const t = document.getElementById("tipo1").value;
   if (!s || !t) return alert('Preencha tudo.');
-  sendCommand(`/start_faturamento?acao=calculo&shopping=${s}&tipo=${t}`);
+  sendCommand(`/start_faturamento?acao=calculo&shopping=${encodeURIComponent(s)}&tipo=${encodeURIComponent(t)}`);
 });
 
-document.getElementById('formBoletos').addEventListener('submit', e => {
-  e.preventDefault();
-  const s = shopping2.value, t = tipo2.value;
-  if (!s || !t) return alert('Preencha tudo.');
-  sendCommand(`/start_faturamento?acao=boletos&shopping=${s}&tipo=${t}`);
-});
+async function updateStatus() {
+  const resp = await fetch('/get_commands');
+  const data = await resp.json();
+  const tbody = document.querySelector('#statusTable tbody');
+  tbody.innerHTML = '';
 
-document.getElementById('formEnvio').addEventListener('submit', e => {
-  e.preventDefault();
-  const s = shopping3.value, t = tipo3.value;
-  if (!s || !t) return alert('Preencha tudo.');
-  sendCommand(`/start_faturamento?acao=envio&shopping=${s}&tipo=${t}`);
-});
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="3">Nenhum comando enviado ainda.</td></tr>';
+    return;
+  }
+
+  data.forEach(cmd => {
+    const tr = document.createElement('tr');
+    const cls = cmd.status === 'pending' ? 'status-pending' :
+                cmd.status === 'in_progress' ? 'status-inprogress' :
+                cmd.status === 'completed' ? 'status-completed' : '';
+    tr.innerHTML = `<td>${cmd.id}</td><td>${cmd.command}</td><td class="${cls}">${cmd.status}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+setInterval(updateStatus, 5000);
+updateStatus();
 </script>
+
 {% endblock %}
