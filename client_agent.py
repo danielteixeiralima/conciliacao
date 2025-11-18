@@ -131,7 +131,52 @@ def execute_command():
                     logging.error(f"❌ Falha ao atualizar status no servidor ({post_resp.status_code}): {post_resp.text}")
             except Exception as ex:
                 logging.exception(f"💥 Erro de conexão ao atualizar status: {ex}")
+         # ======================================================
+        # FATURAMENTO → executa hom_calculos.exe
+        # ======================================================
+        elif command.startswith("execute_faturamento::"):
+            try:
+                _, acao, shopping, tipo = command.split("::")
+                shopping = shopping.strip()
+                tipo = tipo.strip()
 
+                logging.info(f"🧮 Iniciando FATURAMENTO ({acao}) para {shopping} | Tipo: {tipo}")
+
+                exe_path = r"C:\AUTOMACAO\faturamento\bots\hom_calculos.exe"
+                exe_dir = os.path.dirname(exe_path)
+
+                if not os.path.exists(exe_path):
+                    logging.error(f"❌ hom_calculos.exe não encontrado em: {exe_path}")
+                    return
+
+                # Inicia o processo
+                proc = subprocess.Popen(
+                    [exe_path, shopping, tipo],
+                    cwd=exe_dir,
+                    shell=False
+                )
+
+                logging.info("🕓 Aguardando término do processo de FATURAMENTO...")
+                proc.wait()
+                logging.info("🟢 Processo de FATURAMENTO finalizado.")
+
+                # Atualiza o comando como concluído
+                try:
+                    post_resp = requests.post(
+                        f"{SERVER_URL}/update_command",
+                        json={"command_id": command_id},
+                        timeout=10
+                    )
+                    if post_resp.status_code == 200:
+                        logging.info(f"🟢 Status do FATURAMENTO atualizado no servidor (command_id={command_id})")
+                    else:
+                        logging.error(f"❌ Falha ao atualizar status do FATURAMENTO ({post_resp.status_code})")
+                except Exception as ex:
+                    logging.exception(f"💥 Erro ao atualizar status do FATURAMENTO: {ex}")
+
+            except Exception as e:
+                logging.exception(f"💥 Erro ao processar comando de FATURAMENTO: {e}")
+                return
         else:
             logging.warning(f"⚠️ Comando desconhecido recebido: {command}")
             return

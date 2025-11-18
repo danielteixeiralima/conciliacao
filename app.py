@@ -86,14 +86,25 @@ def execute_command():
         elif command.startswith("execute_faturamento::"):
             try:
                 _, acao, shopping, tipo = command.split("::")
-                exe_path = r"C:\AUTOMACAO\faturamento\bots\faturamento.exe"
+
+                # Executável de HOMOLOGAÇÃO
+                exe_path = r"C:\AUTOMACAO\faturamento\bots\hom_calculos.exe"
+                exe_dir  = os.path.dirname(exe_path)
+
                 if os.path.exists(exe_path):
-                    subprocess.Popen([exe_path, acao, shopping, tipo])
-                    logging.info(f"Faturamento ({acao}) iniciado para {shopping} ({tipo})")
+                    subprocess.Popen(
+                        [exe_path, shopping, tipo],  # ⚠️ hom_calculos recebe só 2 args
+                        cwd=exe_dir,
+                        shell=True
+                    )
+                    logging.info(f"[HOMOLOG] hom_calculos.exe iniciado para {shopping} ({tipo})")
+
                 else:
-                    logging.error(f"faturamento.exe não encontrado em {exe_path}")
+                    logging.error(f"[HOMOLOG] hom_calculos.exe NÃO encontrado: {exe_path}")
+
             except Exception as err:
                 logging.error(f"Erro ao interpretar comando de faturamento: {err}")
+
 
         # Atualiza status
         try:
