@@ -4,6 +4,7 @@
 
 <div class="row">
   <div class="col-md-6">
+
     <div class="card mb-3">
       <div class="card-header bg-primary text-white">Gerar Cálculos</div>
       <div class="card-body">
@@ -35,6 +36,39 @@
         </form>
       </div>
     </div>
+
+    <div class="card mb-3">
+      <div class="card-header bg-warning text-dark">Gerar Boletos</div>
+      <div class="card-body">
+        <form id="formBoletos">
+          <div class="mb-3">
+            <label for="shopping2" class="form-label">Selecione o Shopping</label>
+            <select id="shopping2" class="form-select">
+              <option value="">-- Escolha --</option>
+              <option value="Shopping da Ilha">Shopping da Ilha</option>
+              <option value="Shopping Mestre Álvaro">Shopping Mestre Álvaro</option>
+              <option value="Shopping Moxuara">Shopping Moxuara</option>
+              <option value="Shopping Montserrat">Shopping Montserrat</option>
+              <option value="Shopping Rio Poty">Shopping Rio Poty</option>
+              <option value="Shopping Metrópole">Shopping Metrópole</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="tipo2" class="form-label">Tipo de Faturamento</label>
+            <select id="tipo2" class="form-select">
+              <option value="">-- Escolha --</option>
+              <option value="Postecipados">Postecipados</option>
+              <option value="Antecipados">Antecipados</option>
+              <option value="Atípicos">Atípicos</option>
+            </select>
+          </div>
+
+          <button class="btn btn-danger" type="submit">Gerar Boletos</button>
+        </form>
+      </div>
+    </div>
+
   </div>
 
   <div class="col-md-6">
@@ -45,10 +79,16 @@
       <div class="card-body">
         <table class="table table-bordered" id="statusTable">
           <thead>
-            <tr><th>ID</th><th>Comando</th><th>Status</th></tr>
+            <tr>
+              <th>ID</th>
+              <th>Comando</th>
+              <th>Status</th>
+            </tr>
           </thead>
           <tbody>
-            <tr><td colspan="3">Nenhum comando enviado ainda.</td></tr>
+            <tr>
+              <td colspan="3">Nenhum comando enviado ainda.</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -57,46 +97,54 @@
 </div>
 
 <script>
-async function sendCommand(url) {
-  try {
-    const resp = await fetch(url);
-    alert(await resp.text());
-  } catch (err) {
-    alert('Erro: ' + err);
-  }
-}
-
-document.getElementById('formCalculo').addEventListener('submit', e => {
-  e.preventDefault();
-  const s = document.getElementById("shopping1").value;
-  const t = document.getElementById("tipo1").value;
-  if (!s || !t) return alert('Preencha tudo.');
-  sendCommand(`/start_faturamento?acao=calculo&shopping=${encodeURIComponent(s)}&tipo=${encodeURIComponent(t)}`);
-});
-
-async function updateStatus() {
-  const resp = await fetch('/get_commands');
-  const data = await resp.json();
-  const tbody = document.querySelector('#statusTable tbody');
-  tbody.innerHTML = '';
-
-  if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="3">Nenhum comando enviado ainda.</td></tr>';
-    return;
+  async function sendCommand(url) {
+    try {
+      const resp = await fetch(url);
+      alert(await resp.text());
+    } catch (err) {
+      alert('Erro: ' + err);
+    }
   }
 
-  data.forEach(cmd => {
-    const tr = document.createElement('tr');
-    const cls = cmd.status === 'pending' ? 'status-pending' :
-                cmd.status === 'in_progress' ? 'status-inprogress' :
-                cmd.status === 'completed' ? 'status-completed' : '';
-    tr.innerHTML = `<td>${cmd.id}</td><td>${cmd.command}</td><td class="${cls}">${cmd.status}</td>`;
-    tbody.appendChild(tr);
+  document.getElementById('formCalculo').addEventListener('submit', e => {
+    e.preventDefault();
+    const s = document.getElementById("shopping1").value;
+    const t = document.getElementById("tipo1").value;
+    if (!s || !t) return alert('Preencha tudo.');
+    sendCommand(`/start_faturamento?acao=calculo&shopping=${encodeURIComponent(s)}&tipo=${encodeURIComponent(t)}`);
   });
-}
 
-setInterval(updateStatus, 5000);
-updateStatus();
+  document.getElementById('formBoletos').addEventListener('submit', e => {
+    e.preventDefault();
+    const s = document.getElementById("shopping2").value;
+    const t = document.getElementById("tipo2").value;
+    if (!s || !t) return alert('Preencha tudo.');
+    sendCommand(`/start_faturamento?acao=boletos&shopping=${encodeURIComponent(s)}&tipo=${encodeURIComponent(t)}`);
+  });
+
+  async function updateStatus() {
+    const resp = await fetch('/get_commands');
+    const data = await resp.json();
+    const tbody = document.querySelector('#statusTable tbody');
+    tbody.innerHTML = '';
+
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="3">Nenhum comando enviado ainda.</td></tr>';
+      return;
+    }
+
+    data.forEach(cmd => {
+      const tr = document.createElement('tr');
+      const cls = cmd.status === 'pending' ? 'status-pending' :
+        cmd.status === 'in_progress' ? 'status-inprogress' :
+          cmd.status === 'completed' ? 'status-completed' : '';
+      tr.innerHTML = `<td>${cmd.id}</td><td>${cmd.command}</td><td class="${cls}">${cmd.status}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  setInterval(updateStatus, 5000);
+  updateStatus();
 </script>
 
 {% endblock %}

@@ -166,7 +166,6 @@ def start_conciliacao():
 
 @app.route('/start_faturamento')
 def start_faturamento():
-    """Enfileira comandos de faturamento"""
     global commands, command_counter
     shopping = request.args.get('shopping')
     tipo = request.args.get('tipo')
@@ -184,6 +183,7 @@ def start_faturamento():
     command_counter += 1
     save_commands(commands)
     return f"Comando de {acao} ({tipo}) enviado para {shopping}"
+
 
 @app.route('/start_vsloader')
 def start_vsloader():
