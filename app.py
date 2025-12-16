@@ -1,3 +1,5 @@
+# app.py
+
 import os
 import time
 import subprocess
@@ -65,13 +67,12 @@ def execute_command():
             if os.path.exists(exe_path):
                 subprocess.Popen(
                     [exe_path, shopping],
-                    cwd=exe_dir, 
-                    shell=True, # 🔧 força o diretório correto
+                    cwd=exe_dir,
+                    shell=True,
                 )
                 logging.info(f"Conciliação iniciada para {shopping} (cwd={exe_dir})")
             else:
                 logging.error(f"conc_shopping.exe não encontrado em {exe_path}")
-
 
         # --- VSLoader ---
         elif command == "execute_vsloader":
@@ -87,24 +88,28 @@ def execute_command():
             try:
                 _, acao, shopping, tipo = command.split("::")
 
-                # Executável de HOMOLOGAÇÃO
-                exe_path = r"C:\AUTOMACAO\faturamento\bots\hom_calculos.exe"
-                exe_dir  = os.path.dirname(exe_path)
+                if acao == "calculo":
+                    exe_path = r"C:\AUTOMACAO\faturamento\bots\hom_calculos.exe"
+                elif acao == "boletos":
+                    exe_path = r"C:\AUTOMACAO\faturamento\bots\hom_gerar_boletos.exe"
+                else:
+                    logging.error(f"Ação de faturamento desconhecida: {acao}")
+                    return
+
+                exe_dir = os.path.dirname(exe_path)
 
                 if os.path.exists(exe_path):
                     subprocess.Popen(
-                        [exe_path, shopping, tipo],  # ⚠️ hom_calculos recebe só 2 args
+                        [exe_path, shopping, tipo],
                         cwd=exe_dir,
                         shell=True
                     )
-                    logging.info(f"[HOMOLOG] hom_calculos.exe iniciado para {shopping} ({tipo})")
-
+                    logging.info(f"[HOMOLOG] {os.path.basename(exe_path)} iniciado para {shopping} ({tipo})")
                 else:
-                    logging.error(f"[HOMOLOG] hom_calculos.exe NÃO encontrado: {exe_path}")
+                    logging.error(f"[HOMOLOG] Executável não encontrado: {exe_path}")
 
             except Exception as err:
                 logging.error(f"Erro ao interpretar comando de faturamento: {err}")
-
 
         # Atualiza status
         try:
@@ -121,10 +126,6 @@ def run_client_agent():
         execute_command()
         time.sleep(5)
 
-# Se quiser rodar o agente junto com o servidor:
-# agent_thread = Thread(target=run_client_agent, daemon=True)
-# agent_thread.start()
-
 # ====== Rotas Web ======
 
 @app.route('/')
@@ -140,7 +141,6 @@ def start_conciliacao():
     """Enfileira conciliação para todos os shoppings automaticamente"""
     global commands, command_counter
 
-    # lista de shoppings
     shoppings = [
         "Shopping da Ilha",
         "Shopping Mestre Álvaro",
@@ -183,7 +183,6 @@ def start_faturamento():
     command_counter += 1
     save_commands(commands)
     return f"Comando de {acao} ({tipo}) enviado para {shopping}"
-
 
 @app.route('/start_vsloader')
 def start_vsloader():
