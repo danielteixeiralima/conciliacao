@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block container_class %}container-fluid{% endblock %}
 {% block content %}
 <style>
   /* Modern Color Palette */
@@ -220,9 +221,8 @@
 <h2 class="page-title">Faturamento</h2>
 
 <div class="row">
-  <div class="col-md-6">
-
-    <div class="modern-card mb-4">
+  <div class="col-md-3">
+    <div class="modern-card mb-4 h-100">
       <div class="modern-card-header header-calculo">
         <i class="bi bi-calculator"></i> Gerar Cálculos
       </div>
@@ -255,8 +255,10 @@
         </form>
       </div>
     </div>
+  </div>
 
-    <div class="modern-card mb-4">
+  <div class="col-md-3">
+    <div class="modern-card mb-4 h-100">
       <div class="modern-card-header header-boletos">
         <i class="bi bi-receipt"></i> Gerar Boletos
       </div>
@@ -289,8 +291,10 @@
         </form>
       </div>
     </div>
+  </div>
 
-    <div class="modern-card mb-4">
+  <div class="col-md-3">
+    <div class="modern-card mb-4 h-100">
       <div class="modern-card-header header-email">
         <i class="bi bi-envelope"></i> Enviar Email
       </div>
@@ -323,11 +327,10 @@
         </form>
       </div>
     </div>
-
   </div>
 
-  <div class="col-md-6">
-    <div class="modern-card">
+  <div class="col-md-3">
+    <div class="modern-card h-100">
       <div class="modern-card-header header-historico">
         <i class="bi bi-clock-history"></i> Histórico de Comandos
       </div>
@@ -401,7 +404,8 @@
       const cls = cmd.status === 'pending' ? 'status-pending' :
         cmd.status === 'in_progress' ? 'status-inprogress' :
           cmd.status === 'completed' ? 'status-completed' : '';
-      tr.innerHTML = `<td>${cmd.id}</td><td>${cmd.command}</td><td><span class="${cls}">${cmd.status}</span></td>`;
+      const displayText = cmd.display_name || cmd.command;
+      tr.innerHTML = `<td>${cmd.id}</td><td>${displayText}</td><td><span class="${cls}">${cmd.status}</span></td>`;
       tbody.appendChild(tr);
     });
   }

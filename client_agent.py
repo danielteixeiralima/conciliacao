@@ -33,6 +33,7 @@ EXE_PATH = r"C:\AUTOMACAO\conciliacao\bots\conc_shopping.exe"  # Caminho do exec
 
 EXE_CALCULOS = r"C:\AUTOMACAO\faturamento\bots\hom_calculos.exe"       # Robô de cálculos
 EXE_BOLETOS  = r"C:\AUTOMACAO\faturamento\bots\hom_gerar_boletos.exe"  # Robô de boletos
+EXE_EMAIL    = r"C:\AUTOMACAO\faturamento\bots\hom_enviar_email.exe"   # Robô de envio de email
 
 CHECK_INTERVAL = 5  # segundos entre checagens
 
@@ -42,6 +43,7 @@ logging.info(f"🔍 Monitorando comandos a cada {CHECK_INTERVAL}s")
 logging.info(f"🧠 Executável de conciliação configurado em: {EXE_PATH}")
 logging.info(f"🧮 Executável de cálculos configurado em: {EXE_CALCULOS}")
 logging.info(f"💳 Executável de boletos configurado em: {EXE_BOLETOS}")
+logging.info(f"📧 Executável de email configurado em: {EXE_EMAIL}")
 logging.info("=" * 80)
 
 def start_conc_shopping(shopping: str) -> bool:
@@ -172,6 +174,8 @@ def execute_command():
                     exe_path = EXE_CALCULOS
                 elif acao == "boletos":
                     exe_path = EXE_BOLETOS
+                elif acao == "email":
+                    exe_path = EXE_EMAIL
                 else:
                     logging.error(f"❌ Ação de faturamento desconhecida: {acao}")
                     return

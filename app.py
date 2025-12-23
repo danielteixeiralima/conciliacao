@@ -92,6 +92,8 @@ def execute_command():
                     exe_path = r"C:\AUTOMACAO\faturamento\bots\hom_calculos.exe"
                 elif acao == "boletos":
                     exe_path = r"C:\AUTOMACAO\faturamento\bots\hom_gerar_boletos.exe"
+                elif acao == "email":
+                    exe_path = r"C:\AUTOMACAO\faturamento\bots\hom_enviar_email.exe"
                 else:
                     logging.error(f"Ação de faturamento desconhecida: {acao}")
                     return
@@ -155,6 +157,7 @@ def start_conciliacao():
         cmd = {
             "id": command_counter,
             "command": f"execute_conciliacao::{shopping}",
+            "display_name": f"{shopping} - Conciliação",
             "status": "pending",
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
         }
@@ -173,9 +176,18 @@ def start_faturamento():
     if not (shopping and tipo and acao):
         return "Parâmetros incompletos", 400
 
+    # Mapeia ações para nomes legíveis
+    acao_labels = {
+        "calculo": "Gerar cálculos",
+        "boletos": "Gerar boletos",
+        "email": "Enviar e-mail"
+    }
+    acao_display = acao_labels.get(acao, acao)
+
     cmd = {
         "id": command_counter,
         "command": f"execute_faturamento::{acao}::{shopping}::{tipo}",
+        "display_name": f"{shopping} - {acao_display} - {tipo}",
         "status": "pending",
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }

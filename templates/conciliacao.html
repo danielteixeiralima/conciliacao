@@ -25,9 +25,17 @@
       <div class="card-body">
         <table class="table table-bordered" id="statusTable">
           <thead>
-            <tr><th>ID</th><th>Comando</th><th>Status</th></tr>
+            <tr>
+              <th>ID</th>
+              <th>Comando</th>
+              <th>Status</th>
+            </tr>
           </thead>
-          <tbody><tr><td colspan="3">Nenhum comando enviado ainda.</td></tr></tbody>
+          <tbody>
+            <tr>
+              <td colspan="3">Nenhum comando enviado ainda.</td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -35,34 +43,35 @@
 </div>
 
 <script>
-const startBtn = document.getElementById('startAll');
-startBtn.addEventListener('click', async () => {
-  const resp = await fetch('/start_conciliacao');
-  alert(await resp.text());
-  updateStatus();
-});
-
-async function updateStatus() {
-  const resp = await fetch('/get_commands');
-  const data = await resp.json();
-  const tbody = document.querySelector('#statusTable tbody');
-  tbody.innerHTML = '';
-  if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="3">Nenhum comando enviado ainda.</td></tr>';
-    return;
-  }
-  data.forEach(cmd => {
-    const tr = document.createElement('tr');
-    const cls = cmd.status === 'pending' ? 'status-pending' :
-                cmd.status === 'in_progress' ? 'status-inprogress' :
-                cmd.status === 'completed' ? 'status-completed' : '';
-    tr.innerHTML = `<td>${cmd.id}</td><td>${cmd.command}</td>
-                    <td class="${cls}">${cmd.status}</td>`;
-    tbody.appendChild(tr);
+  const startBtn = document.getElementById('startAll');
+  startBtn.addEventListener('click', async () => {
+    const resp = await fetch('/start_conciliacao');
+    alert(await resp.text());
+    updateStatus();
   });
-}
-setInterval(updateStatus, 5000);
-updateStatus();
+
+  async function updateStatus() {
+    const resp = await fetch('/get_commands');
+    const data = await resp.json();
+    const tbody = document.querySelector('#statusTable tbody');
+    tbody.innerHTML = '';
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="3">Nenhum comando enviado ainda.</td></tr>';
+      return;
+    }
+    data.forEach(cmd => {
+      const tr = document.createElement('tr');
+      const cls = cmd.status === 'pending' ? 'status-pending' :
+        cmd.status === 'in_progress' ? 'status-inprogress' :
+          cmd.status === 'completed' ? 'status-completed' : '';
+      const displayText = cmd.display_name || cmd.command;
+      tr.innerHTML = `<td>${cmd.id}</td><td>${displayText}</td>
+                    <td class="${cls}">${cmd.status}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  setInterval(updateStatus, 5000);
+  updateStatus();
 </script>
 
 {% endblock %}
