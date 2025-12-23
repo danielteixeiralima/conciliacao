@@ -29,40 +29,37 @@ from datetime import datetime, time as dt_time, timedelta
 import shutil
 from itertools import count
 import re
-pyautogui.FAILSAFE = False  # CUIDADO: não encosta nos cantos da tela para abortar
-pyautogui.PAUSE = 0.1       # pequeno delay entre ações (deixa mais estável)
+pyautogui.FAILSAFE = False
+pyautogui.PAUSE = 0.1
 import psutil
 import signal
-from dotenv import load_dotenv
-import os
 import tempfile
-# Força o carregamento do .env da mesma pasta do script,
-# mesmo quando o .exe é chamado via web, cron ou manual.
-base_dir = os.path.dirname(os.path.abspath(__file__))
-env_path = os.path.join(base_dir, ".env")
 
-if os.path.exists(env_path):
-    load_dotenv(dotenv_path=env_path)
-    print(f"[DEBUG] .env carregado de: {env_path}")
-else:
-    print(f"[ERRO] .env não encontrado em: {env_path}")
+# =====================================================================
+# 🔥 API KEYS DIRETO NO CÓDIGO (sem usar .env)
+# =====================================================================
+base_dir = os.path.dirname(os.path.abspath(__file__))
+print(f"[DEBUG] base_dir definido como: {base_dir}")
+openai.api_key = "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"
+
+anthropic = Anthropic(
+    api_key="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"
+)
+
+print("[INFO] Rodando sem .env — API Keys definidas diretamente no código.")
+
+# =====================================================================
+# 🗓️ Feriados
+# =====================================================================
 
 br_holidays = Brazil()
 
-# ============================================================
-# 🔧 Configuração global de diretórios centralizados
-# Logs e prints sempre vão para o diretório raiz do projeto
-# ============================================================
+# =====================================================================
+# 📁 Diretórios fixos absolutos (igual estava no seu código)
+# =====================================================================
 
-# Diretório raiz fixo (independente do local do script)
-# ============================================================
-# 🔧 Diretórios fixos absolutos (garante funcionamento via .exe)
-# ============================================================
-
-# Define explicitamente o caminho raiz fixo no Windows
 root_dir = r"C:\AUTOMACAO\conciliacao"
 
-# Garante as pastas principais
 log_dir = os.path.join(root_dir, "Logs")
 prints_folder = os.path.join(root_dir, "prints")
 
@@ -73,17 +70,6 @@ print(f"[DEBUG] Logs fixos em: {log_dir}")
 print(f"[DEBUG] Prints fixos em: {prints_folder}")
 
 _screenshot_counter = count(1)
-
-
-
-# determina qual shopping (vai sobrescrever o arquivo se já existir)
-# shopping = sys.argv[1] if len(sys.argv) > 1 else 'default'
-# print(f"[DEBUG] shopping = {shopping}")
-
-# substitui caracteres impróprios para nome de arquivo, se for o caso
-# safe_shopping = shopping.replace(' ', '_').replace('á','a').replace('ó','o')  # etc.
-
-# log_path = os.path.join(log_dir, f"{safe_shopping}.log")
 
 portador_map = {
     "SDI": [
@@ -118,6 +104,16 @@ portador_map = {
     ]
 }
 
+folder_map = {
+    "Shopping Montserrat": r"C:\Program Files\Victor & Schellenberger\VSSC_MONTSERRAT",
+    "Shopping da Ilha": r"C:\Program Files\Victor & Schellenberger\VSSC_ILHA",
+    "Shopping Rio Poty": r"C:\Program Files\Victor & Schellenberger\VSSC_TERESINA",
+    "Shopping Metrópole": r"C:\Program Files\Victor & Schellenberger\VSSC_METROPOLE",
+    "Shopping Moxuara": r"C:\Program Files\Victor & Schellenberger\VSSC_MOXUARA",
+    "Shopping Praia da Costa": r"C:\Program Files\Victor & Schellenberger\VSSC_PRAIADACOSTA",
+    "Shopping Mestre Álvaro": r"C:\Program Files\Victor & Schellenberger\VSSC_MESTREALVARO"
+}
+
 def determine_variant(shopping):
     """
     Determina o variant com base no nome do shopping.
@@ -148,8 +144,7 @@ def determine_variant(shopping):
 for w in Desktop(backend="uia").windows():
     logging.info(w.window_text())
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-anthropic = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
 
 
 shopping_fases_tipo2 = {
@@ -556,15 +551,6 @@ def select_cnab_files(folder):
     arquivos.sort()
     return arquivos
 
-folder_map = {
-    "Shopping Montserrat": r"C:\Program Files\Victor & Schellenberger\VSSC_MONTSERRAT",
-    "Shopping da Ilha": r"C:\Program Files\Victor & Schellenberger\VSSC_ILHA",
-    "Shopping Rio Poty": r"C:\Program Files\Victor & Schellenberger\VSSC_TERESINA",
-    "Shopping Metrópole": r"C:\Program Files\Victor & Schellenberger\VSSC_METROPOLE",
-    "Shopping Moxuara": r"C:\Program Files\Victor & Schellenberger\VSSC_MOXUARA",
-    "Shopping Praia da Costa": r"C:\Program Files\Victor & Schellenberger\VSSC_PRAIADACOSTA",
-    "Shopping Mestre Álvaro": r"C:\Program Files\Victor & Schellenberger\VSSC_MESTREALVARO"
-}
 
 def kill_vsloader():
     """Força o fechamento do VSLoader.exe."""
@@ -903,9 +889,7 @@ def execute_vsloader(shopping):
                 logging.info(portador["codigo"])
                 pyautogui.press('enter')
                 time.sleep(3)
-                pyautogui.press('down')
-                time.sleep(0.5)
-                pyautogui.press('up')
+                
 
                 repeated_text = None
                 repeat_count = 0
@@ -974,7 +958,11 @@ def execute_vsloader(shopping):
                         logging.info("execute_vsloader: Nenhuma condição modal identificada. Texto identificado: %s", combined_extracted)
                     time.sleep(3)
 
+
                 time.sleep(2)
+                pyautogui.press('down')
+                time.sleep(0.5)
+                pyautogui.press('up')
                 
                 # Seleção de arquivo: utiliza a pasta do portador atual conforme a tabela
                 folder_selecionado = portador["folder"]
@@ -994,21 +982,28 @@ def execute_vsloader(shopping):
                 time.sleep(3)
 
                 # Abre o menu do sistema da janela ("Restaurar, Mover, Tamanho..." etc.)
+               
                 pyautogui.hotkey('alt', 'space')
                 time.sleep(0.3)
                 pyautogui.press('down')
                 time.sleep(0.3)
                 pyautogui.press('enter')
+                pyautogui.moveRel(0,110)
+                pyautogui.click()
+                pyautogui.click()
 
-                # Move o foco para o campo de endereço (coordenadas seguras)
-                pyautogui.moveRel(0, 200)  # <== AJUSTE: move o mouse até a barra de endereço
-                pyautogui.click()
-                pyautogui.click()
-                time.sleep(0.5)
+
+                
+                for i in range(2):
+                    pyautogui.press('tab')
+                    time.sleep(0.3)
+
+                
+                pyautogui.press('backspace')
+                
 
                 time.sleep(3)
-                pyautogui.hotkey('alt', 'space')
-                time.sleep(0.3)                # ==========================================================
+                               # ==========================================================
                 # 🧩 SELEÇÃO DE ARQUIVO — CORREÇÃO DE CAMINHO E DEBUG
                 # ==========================================================
                 folder_selecionado = portador["folder"]
@@ -1051,14 +1046,14 @@ def execute_vsloader(shopping):
                 except Exception as e:
                     logging.error(f"[ERRO] Falha ao listar arquivos em {folder_selecionado}: {e}")
 
-                pyautogui.press('down')
-                time.sleep(0.3)
-                pyautogui.press('enter')
-                pyautogui.moveRel(-200,60)
-                # pyautogui.moveRel(-200,65)
-                pyautogui.click()
-                pyautogui.click()
-                time.sleep(2)
+                # pyautogui.press('down')
+                # time.sleep(0.3)
+                # pyautogui.press('enter')
+                # pyautogui.moveRel(-200,60)
+                # # pyautogui.moveRel(-200,65)
+                # pyautogui.click()
+                # pyautogui.click()
+                # time.sleep(2)
 
         
 
@@ -1132,18 +1127,18 @@ def execute_vsloader(shopping):
                             pyautogui.press('esc')
                             time.sleep(0.3)
                 else:
-                    pyautogui.hotkey('alt', 'space')
-                    time.sleep(0.3)
-                    pyautogui.press('down')
-                    time.sleep(0.3)
-                    pyautogui.press('enter')
-                    pyautogui.moveRel(0,35)
-                    pyautogui.click()
-                    pyautogui.click()
-                    time.sleep(0.3)
-                    pyautogui.press('down')
-                    time.sleep(0.3)
-                    pyautogui.press('enter')
+                    # pyautogui.hotkey('alt', 'space')
+                    # time.sleep(0.3)
+                    # pyautogui.press('down')
+                    # time.sleep(0.3)
+                    # pyautogui.press('enter')
+                    # pyautogui.moveRel(0,35)
+                    # pyautogui.click()
+                    # pyautogui.click()
+                    # time.sleep(0.3)
+                    # pyautogui.press('down')
+                    # time.sleep(0.3)
+                    # pyautogui.press('enter')
 
                     time.sleep(2)
                     pyautogui.press('enter')
@@ -1207,6 +1202,13 @@ def execute_vsloader(shopping):
                             pyautogui.click()
                             pyautogui.press("enter")
                             time.sleep(3)
+                        elif fuzzy_contains(combined_extracted, "alerta vssc") and fuzzy_contains(combined_extracted, "não foi possível"):
+                            logging.info("execute_vsloader: nao foi possivel-> ENTER. Texto identificado: %s", combined_extracted)
+                            pyautogui.moveTo(center_x, center_y)
+                            pyautogui.click()
+                            pyautogui.press("enter")
+                            time.sleep(3)
+                            break
                         elif fuzzy_contains(combined_extracted, "atenção") and fuzzy_contains(combined_extracted, "competência de trabalho será alterada"):
                             logging.info("execute_vsloader: Atenção/Competência será alterada (não 033) -> ENTER. Texto identificado: %s", combined_extracted)
                             pyautogui.moveTo(center_x, center_y)
@@ -1364,6 +1366,16 @@ def execute_vsloader(shopping):
                         time.sleep(3)
                     elif fuzzy_contains(combined_extracted, "alerta vssc") and fuzzy_contains(combined_extracted, "não foi baixado"):
                         logging.info("execute_vsloader: Alerta na baixa (Recria). Texto identificado: %s", combined_extracted)
+                        pyautogui.moveTo(center_x, center_y)
+                        pyautogui.click()
+                        for _ in range(8):
+                            pyautogui.press("esc")
+                            time.sleep(0.5)
+                        
+                        time.sleep(3)
+                        break
+                    elif fuzzy_contains(combined_extracted, "alerta vssc"):
+                        logging.info("execute_vsloader: nao foram encontrados. Texto identificado: %s", combined_extracted)
                         pyautogui.moveTo(center_x, center_y)
                         pyautogui.click()
                         for _ in range(8):
@@ -1550,10 +1562,7 @@ def execute_vsloader(shopping):
                     pyautogui.typewrite(portador["codigo"])
                     pyautogui.press('enter')
                     time.sleep(3)
-                    pyautogui.press('down')
-                    time.sleep(0.5)
-                    pyautogui.press('up')
-
+                    
                     repeated_text = None
                     repeat_count = 0
 
@@ -1606,13 +1615,17 @@ def execute_vsloader(shopping):
                         else:
                             logging.info("execute_vsloader: Nenhuma condição modal identificada (fora do estado). Texto identificado: %s", combined_extracted)
                         time.sleep(3)
+                    
+                    pyautogui.press('down')
+                    time.sleep(0.5)
+                    pyautogui.press('up')
 
                     time.sleep(2)
 
                     folder_selecionado = os.path.dirname(fullpath_local)
 
                     # Garante que o seletor de arquivo está ativo
-                    time.sleep(1)
+                  
 
 
                     pyautogui.hotkey('alt', 'space')
@@ -1629,19 +1642,32 @@ def execute_vsloader(shopping):
                     time.sleep(3)
 
                     # Abre o menu do sistema da janela ("Restaurar, Mover, Tamanho..." etc.)
-                    pyautogui.hotkey('alt', 'space')
-                    time.sleep(0.3)
-                    pyautogui.press('down')
-                    time.sleep(0.3)
-                    pyautogui.press('enter')
+                    # pyautogui.hotkey('alt', 'space')
+                    # time.sleep(0.3)
+                    # pyautogui.press('down')
+                    # time.sleep(0.3)
+                    # pyautogui.press('enter')
 
-                    # Move o foco para o campo de endereço (coordenadas seguras)
-                    pyautogui.moveRel(0, 200)  # <== AJUSTE: move o mouse até a barra de endereço
+                    # # Move o foco para o campo de endereço (coordenadas seguras)
+                    # pyautogui.moveRel(0, 200)  # <== AJUSTE: move o mouse até a barra de endereço
+                    # pyautogui.click()
+                    # pyautogui.click()
+                    # time.sleep()
+
+                    screen_width, screen_height = pyautogui.size()
+                    center_x = screen_width // 2
+                    center_y = screen_height // 2
+
+                    pyautogui.moveTo(center_x, center_y)
                     pyautogui.click()
-                    pyautogui.click()
-                    time.sleep(0.5)
-                    for i in range(70):
-                        pyautogui.press('backspace')
+                    
+                    for i in range(2):
+                        pyautogui.press('tab')
+                        time.sleep(0.3)
+
+                    
+                    pyautogui.press('backspace')
+                    time.sleep(2)
                    
                     # Digita o caminho completo da pasta correta
                     pyautogui.typewrite(folder_selecionado)
@@ -1912,14 +1938,7 @@ def execute_vsloader(shopping):
                             logging.info("execute_vsloader: Nenhuma condição modal identificada (fora do estado/baixa - LOG/ESC). Texto identificado: %s", combined_extracted)
                         time.sleep(3)
 
-
-
-
-    
-
-
-                
-                
+  
         delete_all_prints()
         time.sleep(2)
         pyautogui.hotkey('alt', 'F4')

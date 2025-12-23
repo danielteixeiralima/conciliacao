@@ -28,13 +28,20 @@ logging.info(f"👤 Agente rodando como usuário: {current_user} - Sistema: {pla
 # CONFIG
 # ===========================
 SERVER_URL = "http://34.67.108.173"  # URL do servidor Flask (dashboard/app.py)
-EXE_PATH = r"C:\AUTOMACAO\conciliacao\bots\conc_shopping.exe"  # Caminho do executável do robô
+
+EXE_PATH = r"C:\AUTOMACAO\conciliacao\bots\conc_shopping.exe"  # Caminho do executável do robô de conciliação
+
+EXE_CALCULOS = r"C:\AUTOMACAO\faturamento\bots\hom_calculos.exe"       # Robô de cálculos
+EXE_BOLETOS  = r"C:\AUTOMACAO\faturamento\bots\hom_gerar_boletos.exe"  # Robô de boletos
+
 CHECK_INTERVAL = 5  # segundos entre checagens
 
 logging.info("=" * 80)
 logging.info(f"🚀 Agente iniciado - Conectando ao servidor: {SERVER_URL}")
 logging.info(f"🔍 Monitorando comandos a cada {CHECK_INTERVAL}s")
-logging.info(f"🧠 Executável configurado em: {EXE_PATH}")
+logging.info(f"🧠 Executável de conciliação configurado em: {EXE_PATH}")
+logging.info(f"🧮 Executável de cálculos configurado em: {EXE_CALCULOS}")
+logging.info(f"💳 Executável de boletos configurado em: {EXE_BOLETOS}")
 logging.info("=" * 80)
 
 def start_conc_shopping(shopping: str) -> bool:
@@ -59,14 +66,32 @@ def start_conc_shopping(shopping: str) -> bool:
         logging.exception(f"💥 Erro ao iniciar conc_shopping.exe: {e}")
         return False
 
-def run_shopping(shopping):
-    print(f"🏬 Iniciando {shopping}...")
-    process = subprocess.Popen([r"C:\AUTOMACAO\conciliacao\bots\conc_shopping.exe", shopping])
-    process.wait()  # 🔥 Aqui ele fica parado até o robô fechar o VSLoader e encerrar o exe
-    print(f"✅ {shopping} finalizado às {time.strftime('%H:%M:%S')}")
-# ===========================
-# EXECUÇÃO DO COMANDO
-# ===========================
+def start_faturamento(exe_path: str, shopping: str, tipo: str) -> bool:
+    """
+    Inicia o robô de faturamento correto (cálculos ou boletos).
+    """
+    try:
+        logging.info(f"📌 Tentando iniciar faturamento: {exe_path}")
+
+        if not os.path.exists(exe_path):
+            logging.error(f"❌ Executável NÃO encontrado em: {exe_path}")
+            return False
+
+        exe_dir = os.path.dirname(exe_path)
+        exe_name = os.path.basename(exe_path)
+
+        logging.info(f"🚀 Executando {exe_name} com argumentos: '{shopping}', '{tipo}'")
+        subprocess.Popen(
+            [exe_path, shopping, tipo],
+            cwd=exe_dir,
+            shell=False
+        )
+        return True
+
+    except Exception as e:
+        logging.exception(f"💥 Erro ao iniciar faturamento: {e}")
+        return False
+
 def execute_command():
     try:
         logging.debug("➡️ Solicitando comando pendente do servidor...")
@@ -87,18 +112,19 @@ def execute_command():
 
         logging.info(f"🆕 Novo comando recebido: {command} (ID: {command_id})")
 
+        # ======================================================
+        # CONCILIAÇÃO
+        # ======================================================
         if command.startswith("execute_conciliacao::"):
             shopping = command.split("::", 1)[1].strip()
             logging.info(f"🏬 Iniciando conciliação para: {shopping}")
 
             start_time = datetime.now()
 
-            # === Inicia direto o EXE com o argumento do shopping ===
             ok = start_conc_shopping(shopping)
             if not ok:
                 return
 
-            # Aguarda o processo conc_shopping.exe iniciar (até 60s)
             logging.info("🕓 Aguardando o processo conc_shopping.exe iniciar...")
             for _ in range(60):
                 if any("conc_shopping.exe" in p.name().lower() for p in psutil.process_iter()):
@@ -109,7 +135,6 @@ def execute_command():
                 logging.warning("⚠️ O processo conc_shopping.exe não foi detectado em 60s.")
                 return
 
-            # Aguarda finalizar (verifica a cada 5s)
             while any("conc_shopping.exe" in p.name().lower() for p in psutil.process_iter()):
                 _time.sleep(5)
 
@@ -117,7 +142,6 @@ def execute_command():
             duration = (end_time - start_time).total_seconds()
             logging.info(f"✅ Conciliação finalizada para {shopping} (Tempo total: {duration:.2f}s)")
 
-            # Atualiza status no servidor
             try:
                 logging.debug(f"📡 Atualizando status no servidor para 'completed' (command_id={command_id})...")
                 post_resp = requests.post(
@@ -131,36 +155,48 @@ def execute_command():
                     logging.error(f"❌ Falha ao atualizar status no servidor ({post_resp.status_code}): {post_resp.text}")
             except Exception as ex:
                 logging.exception(f"💥 Erro de conexão ao atualizar status: {ex}")
-         # ======================================================
-        # FATURAMENTO → executa hom_calculos.exe
+
+        # ======================================================
+        # FATURAMENTO
         # ======================================================
         elif command.startswith("execute_faturamento::"):
             try:
                 _, acao, shopping, tipo = command.split("::")
                 shopping = shopping.strip()
                 tipo = tipo.strip()
+                acao = acao.strip()
 
                 logging.info(f"🧮 Iniciando FATURAMENTO ({acao}) para {shopping} | Tipo: {tipo}")
 
-                exe_path = r"C:\AUTOMACAO\faturamento\bots\hom_calculos.exe"
-                exe_dir = os.path.dirname(exe_path)
-
-                if not os.path.exists(exe_path):
-                    logging.error(f"❌ hom_calculos.exe não encontrado em: {exe_path}")
+                if acao == "calculo":
+                    exe_path = EXE_CALCULOS
+                elif acao == "boletos":
+                    exe_path = EXE_BOLETOS
+                else:
+                    logging.error(f"❌ Ação de faturamento desconhecida: {acao}")
                     return
 
-                # Inicia o processo
-                proc = subprocess.Popen(
-                    [exe_path, shopping, tipo],
-                    cwd=exe_dir,
-                    shell=False
-                )
+                ok = start_faturamento(exe_path, shopping, tipo)
+                if not ok:
+                    return
 
-                logging.info("🕓 Aguardando término do processo de FATURAMENTO...")
-                proc.wait()
-                logging.info("🟢 Processo de FATURAMENTO finalizado.")
+                process_name = os.path.basename(exe_path).lower()
 
-                # Atualiza o comando como concluído
+                logging.info(f"🕓 Aguardando inicialização do {process_name}...")
+                for _ in range(60):
+                    if any(process_name in p.name().lower() for p in psutil.process_iter()):
+                        logging.info(f"🟢 Processo {process_name} detectado — aguardando finalização...")
+                        break
+                    _time.sleep(1)
+                else:
+                    logging.warning(f"⚠️ O processo {process_name} não foi detectado em 60s.")
+                    return
+
+                while any(process_name in p.name().lower() for p in psutil.process_iter()):
+                    _time.sleep(5)
+
+                logging.info(f"🟢 Processo de FATURAMENTO ({acao}) finalizado.")
+
                 try:
                     post_resp = requests.post(
                         f"{SERVER_URL}/update_command",
@@ -177,6 +213,7 @@ def execute_command():
             except Exception as e:
                 logging.exception(f"💥 Erro ao processar comando de FATURAMENTO: {e}")
                 return
+
         else:
             logging.warning(f"⚠️ Comando desconhecido recebido: {command}")
             return
@@ -190,7 +227,6 @@ def execute_command():
     except Exception as e:
         logging.exception(f"💥 Erro inesperado no agente: {e}")
 
-
 # ===========================
 # LOOP PRINCIPAL DO AGENTE
 # ===========================
@@ -202,7 +238,6 @@ def main():
         except Exception as loop_err:
             logging.exception(f"🔥 Erro no loop principal: {loop_err}")
         time.sleep(CHECK_INTERVAL)
-
 
 if __name__ == "__main__":
     try:

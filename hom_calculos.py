@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###############################################################################
-#                              hom_calculos.py                                #
+#                                  calculos.py                                 #
 ###############################################################################
 
 import ctypes
@@ -9,9 +9,8 @@ import pyautogui
 import logging
 import time
 import os
-import base64
 from anthropic import Anthropic
-from openai import OpenAI
+from gera_txt import generate_txts_from_xls
 import pyexcel_xls
 from pywinauto import Application
 from pywinauto.findwindows import ElementNotFoundError, find_windows
@@ -20,59 +19,17 @@ import cv2
 from pywinauto import Desktop
 from datetime import date, timedelta
 import calendar
-from holidays import Brazil
+import openai
+import base64
+import difflib 
+import subprocess
+import pyperclip
 import openpyxl
+from hom_utils import login, gerar_competencia
+from openpyxl import Workbook, load_workbook 
 import unicodedata, re, difflib
 import shutil
-import psutil
-import signal
-from dotenv import load_dotenv
-import tempfile
-import sys
 
-pyautogui.FAILSAFE = False
-pyautogui.PAUSE = 0.1
-
-# =====================================================================
-# 🔧 Carrega .env a partir da MESMA pasta do .exe (igual conc_shopping)
-# =====================================================================
-base_dir = os.path.dirname(os.path.abspath(__file__))
-env_path = os.path.join(base_dir, ".env")
-
-if os.path.exists(env_path):
-    load_dotenv(dotenv_path=env_path)
-    print(f"[DEBUG] .env carregado de: {env_path}")
-else:
-    print(f"[ERRO] .env não encontrado em: {env_path}")
-
-# =====================================================================
-# 🔑 API Keys carregadas do .env (sem expor no código)
-# =====================================================================
-openai_api_key = os.getenv("OPENAI_API_KEY")
-anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
-
-if not openai_api_key:
-    print("[ERRO] OPENAI_API_KEY não encontrada no .env")
-if not anthropic_api_key:
-    print("[ERRO] ANTHROPIC_API_KEY não encontrada no .env")
-
-client = OpenAI(api_key=openai_api_key)
-anthropic = Anthropic(api_key=anthropic_api_key)
-
-# =====================================================================
-# 📁 Diretórios globais fixos como no conc_shopping
-# =====================================================================
-
-root_dir = r"C:\AUTOMACAO\faturamento"
-
-log_dir = os.path.join(root_dir, "Logs")
-prints_dir = os.path.join(root_dir, "prints")
-
-os.makedirs(log_dir, exist_ok=True)
-os.makedirs(prints_dir, exist_ok=True)
-
-print(f"[DEBUG] Logs fixos em: {log_dir}")
-print(f"[DEBUG] Prints fixos em: {prints_dir}")
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -80,8 +37,15 @@ logging.basicConfig(
     datefmt='%d/%m/%Y %H:%M:%S'
 )
 
-br_holidays = Brazil()
+pyautogui.FAILSAFE
 
+openai.api_key = "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"
+
+
+for w in Desktop(backend="uia").windows():
+    logging.info(w.window_text())
+
+anthropic = Anthropic(api_key='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')
 folder_map = {
     "Shopping Montserrat": r"C:\Program Files\Victor & Schellenberger\VSSC_MONTSERRAT",
     "Shopping da Ilha": r"C:\Program Files\Victor & Schellenberger\VSSC_ILHA",
@@ -2606,8 +2570,8 @@ def execute_vsloader(shopping, tipo):
                             pyautogui.press('enter')
                             time.sleep(0.3)
 
-                    elif fuzzy_contains(combined_extracted, "Calcular Valores") and fuzzy_contains(combined_extracted, "Aluguel Minimo"):
-                        logging.info("execute_vsloader: Calcular valores. Texto identificado: %s", combined_extracted)
+                    elif fuzzy_contains(combined_extracted, "Calcular Valores") and fuzzy_contains(combined_extracted, "Aluguel Minimo") and not fuzzy_contains(combined_extracted, "Alerta VSSC"):
+                        logging.info("execute_vsloader: Calcular valores. 2574 Texto identificado: %s", combined_extracted)
                         break
                         
                     elif fuzzy_contains(combined_extracted, "<ESC>") or fuzzy_contains(combined_extracted, "Alerta VSSC"):

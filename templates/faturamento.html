@@ -1,13 +1,232 @@
 {% extends "base.html" %}
 {% block content %}
-<h2 class="mb-4">Faturamento</h2>
+<style>
+  /* Modern Color Palette */
+  :root {
+    --gradient-purple: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-orange: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-email: linear-gradient(135deg, #ff9a56 0%, #ff6a00 100%);
+    --gradient-slate: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 2rem;
+    letter-spacing: -0.5px;
+  }
+
+  /* Modern Card Styling */
+  .modern-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .modern-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .modern-card-header {
+    padding: 1.5rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.3px;
+    border: none;
+  }
+
+  .header-calculo {
+    background: var(--gradient-purple);
+    color: white;
+  }
+
+  .header-boletos {
+    background: var(--gradient-orange);
+    color: white;
+  }
+
+  .header-email {
+    background: var(--gradient-email);
+    color: white;
+  }
+
+  .header-historico {
+    background: var(--gradient-slate);
+    color: white;
+  }
+
+  .modern-card-body {
+    padding: 2rem;
+  }
+
+  /* Modern Form Elements */
+  .form-label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-select {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f7fafc;
+  }
+
+  .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background-color: white;
+    outline: none;
+  }
+
+  /* Modern Buttons */
+  .btn-modern {
+    padding: 0.875rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .btn-calculo {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+
+  .btn-calculo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+    color: white;
+  }
+
+  .btn-boletos {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+  }
+
+  .btn-boletos:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(245, 87, 108, 0.5);
+    color: white;
+  }
+
+  .btn-email {
+    background: linear-gradient(135deg, #ff9a56 0%, #ff6a00 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 106, 0, 0.4);
+  }
+
+  .btn-email:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 106, 0, 0.5);
+    color: white;
+  }
+
+  /* Modern Table */
+  .modern-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .modern-table thead th {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border: none;
+  }
+
+  .modern-table tbody td {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    color: #4a5568;
+    font-size: 0.95rem;
+  }
+
+  .modern-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .modern-table tbody tr:hover {
+    background-color: #f7fafc;
+  }
+
+  /* Status Badges */
+  .status-pending {
+    color: #ed8936;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    background: #feebc8;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 0.85rem;
+  }
+
+  .status-inprogress {
+    color: #3182ce;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    background: #bee3f8;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 0.85rem;
+  }
+
+  .status-completed {
+    color: #38a169;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    background: #c6f6d5;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 0.85rem;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .modern-card-body {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<h2 class="page-title">Faturamento</h2>
 
 <div class="row">
   <div class="col-md-6">
 
-    <div class="card mb-3">
-      <div class="card-header bg-primary text-white">Gerar Cálculos</div>
-      <div class="card-body">
+    <div class="modern-card mb-4">
+      <div class="modern-card-header header-calculo">
+        <i class="bi bi-calculator"></i> Gerar Cálculos
+      </div>
+      <div class="modern-card-body">
         <form id="formCalculo">
           <div class="mb-3">
             <label for="shopping1" class="form-label">Selecione o Shopping</label>
@@ -32,14 +251,16 @@
             </select>
           </div>
 
-          <button class="btn btn-success" type="submit">Gerar Cálculos</button>
+          <button class="btn btn-modern btn-calculo" type="submit">Gerar Cálculos</button>
         </form>
       </div>
     </div>
 
-    <div class="card mb-3">
-      <div class="card-header bg-warning text-dark">Gerar Boletos</div>
-      <div class="card-body">
+    <div class="modern-card mb-4">
+      <div class="modern-card-header header-boletos">
+        <i class="bi bi-receipt"></i> Gerar Boletos
+      </div>
+      <div class="modern-card-body">
         <form id="formBoletos">
           <div class="mb-3">
             <label for="shopping2" class="form-label">Selecione o Shopping</label>
@@ -64,7 +285,41 @@
             </select>
           </div>
 
-          <button class="btn btn-danger" type="submit">Gerar Boletos</button>
+          <button class="btn btn-modern btn-boletos" type="submit">Gerar Boletos</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modern-card mb-4">
+      <div class="modern-card-header header-email">
+        <i class="bi bi-envelope"></i> Enviar Email
+      </div>
+      <div class="modern-card-body">
+        <form id="formEmail">
+          <div class="mb-3">
+            <label for="shopping3" class="form-label">Selecione o Shopping</label>
+            <select id="shopping3" class="form-select">
+              <option value="">-- Escolha --</option>
+              <option value="Shopping da Ilha">Shopping da Ilha</option>
+              <option value="Shopping Mestre Álvaro">Shopping Mestre Álvaro</option>
+              <option value="Shopping Moxuara">Shopping Moxuara</option>
+              <option value="Shopping Montserrat">Shopping Montserrat</option>
+              <option value="Shopping Rio Poty">Shopping Rio Poty</option>
+              <option value="Shopping Metrópole">Shopping Metrópole</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="tipo3" class="form-label">Tipo de Faturamento</label>
+            <select id="tipo3" class="form-select">
+              <option value="">-- Escolha --</option>
+              <option value="Postecipados">Postecipados</option>
+              <option value="Antecipados">Antecipados</option>
+              <option value="Atípicos">Atípicos</option>
+            </select>
+          </div>
+
+          <button class="btn btn-modern btn-email" type="submit">Enviar Email</button>
         </form>
       </div>
     </div>
@@ -72,12 +327,12 @@
   </div>
 
   <div class="col-md-6">
-    <div class="card">
-      <div class="card-header bg-secondary text-white">
-        Histórico de Comandos
+    <div class="modern-card">
+      <div class="modern-card-header header-historico">
+        <i class="bi bi-clock-history"></i> Histórico de Comandos
       </div>
-      <div class="card-body">
-        <table class="table table-bordered" id="statusTable">
+      <div class="modern-card-body">
+        <table class="table modern-table" id="statusTable">
           <thead>
             <tr>
               <th>ID</th>
@@ -87,7 +342,7 @@
           </thead>
           <tbody>
             <tr>
-              <td colspan="3">Nenhum comando enviado ainda.</td>
+              <td colspan="3" style="text-align: center; color: #a0aec0;">Nenhum comando enviado ainda.</td>
             </tr>
           </tbody>
         </table>
@@ -122,6 +377,14 @@
     sendCommand(`/start_faturamento?acao=boletos&shopping=${encodeURIComponent(s)}&tipo=${encodeURIComponent(t)}`);
   });
 
+  document.getElementById('formEmail').addEventListener('submit', e => {
+    e.preventDefault();
+    const s = document.getElementById("shopping3").value;
+    const t = document.getElementById("tipo3").value;
+    if (!s || !t) return alert('Preencha tudo.');
+    sendCommand(`/start_faturamento?acao=email&shopping=${encodeURIComponent(s)}&tipo=${encodeURIComponent(t)}`);
+  });
+
   async function updateStatus() {
     const resp = await fetch('/get_commands');
     const data = await resp.json();
@@ -129,7 +392,7 @@
     tbody.innerHTML = '';
 
     if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="3">Nenhum comando enviado ainda.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #a0aec0;">Nenhum comando enviado ainda.</td></tr>';
       return;
     }
 
@@ -138,7 +401,7 @@
       const cls = cmd.status === 'pending' ? 'status-pending' :
         cmd.status === 'in_progress' ? 'status-inprogress' :
           cmd.status === 'completed' ? 'status-completed' : '';
-      tr.innerHTML = `<td>${cmd.id}</td><td>${cmd.command}</td><td class="${cls}">${cmd.status}</td>`;
+      tr.innerHTML = `<td>${cmd.id}</td><td>${cmd.command}</td><td><span class="${cls}">${cmd.status}</span></td>`;
       tbody.appendChild(tr);
     });
   }
